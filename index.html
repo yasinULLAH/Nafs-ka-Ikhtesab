@@ -1,0 +1,2054 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nafs Reckoner - Islamic Self-Accountability Journal</title>
+    <style>
+        :root {
+            --primary: #3a7bd5;
+            --secondary: #00d2ff;
+            --text: #333;
+            --light-text: #777;
+            --bg: #f9f9f9;
+            --card-bg: #fff;
+            --border: #eaeaea;
+            --accent: #7b4397;
+            --shadow: rgba(0,0,0,0.1);
+        }
+        [data-theme="dawn"] {
+            --primary: #ff7e5f;
+            --secondary: #feb47b;
+            --bg: #fff8f0;
+            --card-bg: #ffffff;
+            --border: #ffe8d6;
+            --accent: #c06c84;
+        }
+        [data-theme="night"] {
+            --primary: #2c3e50;
+            --secondary: #4ca1af;
+            --text: #e0e0e0;
+            --light-text: #b0b0b0;
+            --bg: #1a1a2e;
+            --card-bg: #16213e;
+            --border: #0f3460;
+            --accent: #6a11cb;
+            --shadow: rgba(0,0,0,0.3);
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        * {
+            box-sizing: border-box;
+        }
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 10px var(--shadow);
+            position: relative;
+        }
+        h1 {
+            margin: 0;
+            font-weight: 300;
+            font-size: 1.8rem;
+        }
+        main {
+            flex: 1;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid var(--accent);
+            transition: transform 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        .card h2 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1.3rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+        }
+        button, .btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+        button:hover, .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px var(--shadow);
+        }
+        button.secondary {
+            background: var(--bg);
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-family: inherit;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 0.5rem 0;
+        }
+        .tag {
+            background: rgba(var(--primary-rgb), 0.1);
+            color: var(--primary);
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+        }
+        .tag span {
+            margin-left: 0.3rem;
+            font-size: 0.7rem;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow);
+            text-align: center;
+        }
+        .stat-card h3 {
+            margin: 0;
+            color: var(--light-text);
+            font-size: 0.9rem;
+            font-weight: normal;
+        }
+        .stat-card p {
+            font-size: 1.8rem;
+            margin: 0.5rem 0;
+            color: var(--primary);
+        }
+        .entries-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .entry-item {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .entry-item:hover {
+            background: rgba(var(--primary-rgb), 0.05);
+        }
+        .entry-date {
+            font-size: 0.8rem;
+            color: var(--light-text);
+        }
+        .entry-preview {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0.3rem 0;
+        }
+        #journal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .prompt {
+            background: rgba(var(--primary-rgb), 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        .prompt-text {
+            font-weight: 500; 
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+        .settings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        .settings-item {
+            padding: 1rem;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+        .theme-preview {
+            height: 30px;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        .theme-default {
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+        }
+        .theme-dawn {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+        }
+        .theme-night {
+            background: linear-gradient(to right, #2c3e50, #4ca1af);
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        .tab {
+            padding: 0.8rem 1.2rem;
+            cursor: pointer;
+            opacity: 0.7;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        .tab.active {
+            opacity: 1;
+            border-bottom-color: var(--primary);
+            font-weight: 500;
+        }
+        .tab:hover {
+            opacity: 1;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .gear-icon {
+            position: absolute;
+            right: 1rem;
+            top: 1rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s ease;
+            font-size: 1.2rem;
+        }
+        .gear-icon:hover {
+            opacity: 1;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 1.5rem;
+            position: relative;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text);
+            padding: 0;
+            width: auto;
+            height: auto;
+            box-shadow: none;
+        }
+        .close-modal:hover {
+            color: var(--primary);
+        }
+        .prompts-list {
+            margin: 1rem 0;
+        }
+        .prompt-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .prompt-item:last-child {
+            border-bottom: none;
+        }
+        .prompt-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--light-text);
+            padding: 0.2rem;
+            box-shadow: none;
+        }
+        .action-btn:hover {
+            color: var(--primary);
+            box-shadow: none;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background: var(--card-bg);
+            color: var(--light-text);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: auto;
+        }
+        .entry-detail {
+            padding: 1rem;
+        }
+        .entry-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .entry-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .entry-content {
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        .prompt-response {
+            margin-bottom: 1rem;
+            border-left: 2px solid var(--accent);
+            padding-left: 1rem;
+        }
+        .prompt-response h4 {
+            margin: 0.5rem 0;
+            color: var(--primary);
+        }
+        .strength-meter {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        .strength-meter div {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .login-container {
+            width: 90%;
+            max-width: 350px;
+            padding: 2rem;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px var(--shadow);
+            text-align: center;
+        }
+        .login-logo {
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+        .login-form {
+            margin-top: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+        .reminder-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .reminder-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px var(--shadow);
+            padding: 0.5rem;
+            min-width: 200px;
+            z-index: 100;
+            display: none;
+        }
+        .reminder-dropdown:hover .reminder-menu {
+            display: block;
+        }
+        .reminder-menu button {
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem;
+            margin: 0.2rem 0;
+        }
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0;
+            cursor: pointer;
+        }
+        .custom-checkbox input {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+        .snackbar {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background: var(--primary);
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            padding: 1rem;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            box-shadow: 0 4px 10px var(--shadow);
+        }
+        .snackbar.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein {
+            from {bottom: 0; opacity: 0;}
+            to {bottom: 30px; opacity: 1;}
+        }
+        @keyframes fadeout {
+            from {bottom: 30px; opacity: 1;}
+            to {bottom: 0; opacity: 0;}
+        }
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 0.5rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Geometric pattern overlay for background */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(var(--bg) 1px, transparent 1px),
+                linear-gradient(90deg, var(--bg) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body data-theme="default">
+<div id="login-screen" style="display: none;">
+<div class="login-container">
+<div class="login-logo">Nafs Reckoner</div>
+<div class="subtitle">Your personal journey of self-accountability</div>
+
+            <div id="setup-container" style="display: none;">
+                <h2>Welcome to Nafs Reckoner</h2>
+                <p>Would you like to set a password to protect your journal?</p>
+                <form id="setup-form">
+                    <input type="password" id="setup-password" placeholder="Enter password (optional)">
+                    <div class="strength-meter">
+                        <div id="password-strength" style="width: 0%"></div>
+                    </div>
+                    <p id="password-feedback" style="font-size: 0.8rem; margin-top: 0.5rem;"></p>
+                    <button type="submit" class="btn">Continue to Journal</button>
+                </form>
+            </div>
+            
+            <div id="login-container" style="display: none;">
+                <h2>Welcome Back</h2>
+                <form id="login-form" class="login-form">
+                    <input type="password" id="login-password" placeholder="Enter your password">
+                    <button type="submit" class="btn">Unlock Journal</button>
+                </form>
+                <p id="login-error" style="color: #e74c3c; margin-top: 0.5rem; font-size: 0.9rem;"></p>
+            </div>
+        </div>
+    </div>
+    
+    <header>
+        <h1>Nafs Reckoner</h1>
+        <div class="gear-icon" id="open-settings">⚙️</div>
+    </header>
+    
+    <main>
+        <div class="tabs">
+            <div class="tab active" data-tab="tab-journal">Journal</div>
+            <div class="tab" data-tab="tab-entries">Entries</div>
+            <div class="tab" data-tab="tab-insights">Insights</div>
+        </div>
+    
+        <div class="tab-content active" id="tab-journal">
+            <form id="journal-form">
+                <div class="card">
+                    <h2>Today's Reflection</h2>
+                    <input type="date" id="entry-date" required>
+                    <div id="prompts-container"></div>
+                    <div style="margin: 1rem 0;">
+                        <label for="entry-tags">Tags (separated by comma)</label>
+                        <input type="text" id="entry-tags" placeholder="e.g., gratitude, prayers, struggles">
+                        <div id="suggested-tags" class="tags"></div>
+                    </div>
+                    <button type="submit">Save Reflection</button>
+                </div>
+            </form>
+        </div>
+    
+        <div class="tab-content" id="tab-entries">
+            <div class="dashboard">
+                <div class="card">
+                    <h2>Journal Entries</h2>
+                    <input type="text" id="search-entries" placeholder="Search entries...">
+                    <div class="tags" id="filter-tags"></div>
+                    <div class="entries-list" id="entries-list"></div>
+                </div>
+                <div id="entry-detail" class="card" style="display: none;">
+                    <div class="entry-header">
+                        <h2>Entry Detail</h2>
+                        <div class="entry-actions">
+                            <button class="secondary" id="edit-entry">Edit</button>
+                            <button class="secondary" id="delete-entry">Delete</button>
+                        </div>
+                    </div>
+                    <div class="entry-detail">
+                        <div class="entry-date" id="detail-date"></div>
+                        <div class="tags" id="detail-tags"></div>
+                        <div class="entry-content" id="detail-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="tab-content" id="tab-insights">
+            <div class="card">
+                <h2>Your Journey</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <h3>Total Entries</h3>
+                        <p id="stat-total">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Current Streak</h3>
+                        <p id="stat-streak">0 days</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Most Used Tag</h3>
+                        <p id="stat-tag">-</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h2>Areas of Focus</h2>
+                <div id="tags-chart" style="height: 300px;"></div>
+            </div>
+        </div>
+    </main>
+    
+    <div class="modal" id="settings-modal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <h2>Settings</h2>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="settings-prompts">Prompts</div>
+                <div class="tab" data-tab="settings-appearance">Appearance</div>
+                <div class="tab" data-tab="settings-reminders">Reminders</div>
+                <div class="tab" data-tab="settings-data">Data</div>
+            </div>
+            
+            <div class="tab-content active" id="settings-prompts">
+                <h3>Customize Reflection Prompts</h3>
+                <p>These prompts will guide your daily reflection.</p>
+                
+                <div class="prompts-list" id="prompts-list"></div>
+                
+                <form id="add-prompt-form">
+                    <input type="text" id="new-prompt" placeholder="Add a new prompt question">
+                    <button type="submit">Add Prompt</button>
+                </form>
+                
+                <button id="reset-prompts" class="secondary" style="margin-top: 1rem;">Reset to Defaults</button>
+            </div>
+            
+            <div class="tab-content" id="settings-appearance">
+                <h3>Customize Appearance</h3>
+                <div class="settings-grid">
+                    <div class="settings-item">
+                        <div class="theme-preview theme-default"></div>
+                        <label class="custom-checkbox">
+                            <input type="radio" name="theme" value="default" checked>
+                            Default Theme
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="theme-preview theme-dawn"></div>
+                        <label class="custom-checkbox">
+                            <input type="radio" name="theme" value="dawn">
+                            Dawn Reflection
+                        </label>
+                    </div>
+                    <div class="settings-item">
+                        <div class="theme-preview theme-night"></div>
+                        <label class="custom-checkbox">
+                            <input type="radio" name="theme" value="night">
+                            Nightly Review
+                        </label>
+                    </div>
+                </div>
+                
+                <h3>Security</h3>
+                <div class="settings-item">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" id="enable-password">
+                        Password protect journal
+                    </label>
+                    <div id="password-container" style="display: none; margin-top: 1rem;">
+                        <input type="password" id="password" placeholder="Enter a password">
+                        <div class="strength-meter">
+                            <div id="settings-password-strength" style="width: 0%"></div>
+                        </div>
+                        <button id="save-password" style="margin-top: 0.5rem;">Save Password</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="settings-reminders">
+                <h3>Daily Reflection Reminders</h3>
+                <label class="custom-checkbox">
+                    <input type="checkbox" id="enable-reminders">
+                    Enable daily reminders
+                </label>
+                <div id="reminder-settings" style="display: none; margin-top: 1rem;">
+                    <label for="reminder-time">Reminder time</label>
+                    <input type="time" id="reminder-time" value="21:00">
+                    <button id="save-reminder" style="margin-top: 0.5rem;">Save Reminder</button>
+                </div>
+                <p style="font-size: 0.9rem; margin-top: 1rem;">
+                    Note: Reminders require permission to show notifications.
+                </p>
+            </div>
+            
+            <div class="tab-content" id="settings-data">
+                <h3>Manage Your Data</h3>
+                <div class="settings-grid">
+                    <div class="settings-item">
+                        <h4>Export Journal</h4>
+                        <p>Download all your entries as a file.</p>
+                        <button id="export-data" class="secondary">Export Data</button>
+                    </div>
+                    <div class="settings-item">
+                        <h4>Import Journal</h4>
+                        <p>Restore previously exported entries.</p>
+                        <input type="file" id="import-file" accept=".json" style="display: none;">
+                        <button id="import-trigger" class="secondary">Import Data</button>
+                    </div>
+                    <div class="settings-item">
+                        <h4>Clear All Data</h4>
+                        <p>This will permanently delete all entries.</p>
+                        <button id="clear-data" class="secondary">Clear Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="confirm-modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 id="confirm-title">Confirm Action</h3>
+            <p id="confirm-message">Are you sure you want to proceed?</p>
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1rem;">
+                <button id="confirm-cancel" class="secondary">Cancel</button>
+                <button id="confirm-action">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="snackbar" id="snackbar">Notification message</div>
+    
+    <footer>
+        Nafs Reckoner - Your personal journey of self-accountability
+    </footer>
+    
+    <script>
+        // Core utility functions
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+        const ce = (tag) => document.createElement(tag);
+        const ls = localStorage;
+        const formatDate = (date) => {
+            const d = new Date(date);
+            return d.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        };
+        const showSnackbar = (message) => {
+            const sb = $('#snackbar');
+            sb.textContent = message;
+            sb.className = 'snackbar show';
+            setTimeout(() => sb.className = 'snackbar', 3000);
+        };
+        
+        // IndexedDB setup
+        const DB_NAME = 'NafsReckoner';
+        const DB_VERSION = 1;
+        let db;
+        
+        const initDb = () => {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onupgradeneeded = (e) => {
+                    db = e.target.result;
+                    
+                    if (!db.objectStoreNames.contains('entries')) {
+                        const entriesStore = db.createObjectStore('entries', { keyPath: 'id' });
+                        entriesStore.createIndex('date', 'date', { unique: false });
+                        entriesStore.createIndex('tags', 'tags', { unique: false, multiEntry: true });
+                    }
+                    
+                    if (!db.objectStoreNames.contains('settings')) {
+                        db.createObjectStore('settings', { keyPath: 'id' });
+                    }
+                };
+                
+                request.onsuccess = (e) => {
+                    db = e.target.result;
+                    resolve(db);
+                };
+                
+                request.onerror = (e) => {
+                    reject('Error opening database: ' + e.target.error);
+                };
+            });
+        };
+        
+        const dbGet = (store, key) => {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(store, 'readonly');
+                const objStore = transaction.objectStore(store);
+                const request = objStore.get(key);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        };
+        
+        const dbGetAll = (store) => {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(store, 'readonly');
+                const objStore = transaction.objectStore(store);
+                const request = objStore.getAll();
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        };
+        
+        const dbPut = (store, data) => {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(store, 'readwrite');
+                const objStore = transaction.objectStore(store);
+                const request = objStore.put(data);
+                
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        };
+        
+        const dbDelete = (store, key) => {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(store, 'readwrite');
+                const objStore = transaction.objectStore(store);
+                const request = objStore.delete(key);
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        };
+        
+        const dbClear = (store) => {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(store, 'readwrite');
+                const objStore = transaction.objectStore(store);
+                const request = objStore.clear();
+                
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        };
+        
+        // Default prompts
+        const DEFAULT_PROMPTS = [
+            "How were your prayers today? Reflect on quality and focus.",
+            "Did you engage in any dhikr (remembrance of Allah) today?",
+            "What good deeds did you perform today?",
+            "Did you speak kind words or hurt others with your speech?",
+            "How much time did you waste today? On what?",
+            "What blessings are you grateful for today?",
+            "Did you learn anything beneficial today?",
+            "What areas would you like to improve tomorrow?"
+        ];
+        
+        // App state
+        let currentEntryId = null;
+        let allTags = [];
+        let currentTheme = 'default';
+        
+        // Initialize the app
+        const init = async () => {
+            try {
+                await initDb();
+                await loadSettings();
+                
+                // Check if password protection is enabled
+                const passwordSetting = await dbGet('settings', 'password');
+                if (passwordSetting) {
+                    showLoginScreen(passwordSetting.value ? 'login' : 'setup');
+                } else {
+                    await loadApp();
+                }
+            } catch (error) {
+                console.error('Initialization error:', error);
+                showSnackbar('Error initializing app. Please refresh the page.');
+            }
+        };
+        
+        const showLoginScreen = (mode) => {
+            $('#login-screen').style.display = 'flex';
+            
+            if (mode === 'setup') {
+                $('#setup-container').style.display = 'block';
+                $('#login-container').style.display = 'none';
+            } else {
+                $('#setup-container').style.display = 'none';
+                $('#login-container').style.display = 'block';
+            }
+        };
+        
+        const hideLoginScreen = () => {
+            $('#login-screen').style.display = 'none';
+        };
+        
+        const loadApp = async () => {
+            setupEventListeners();
+            await loadPrompts();
+            loadTodayJournal();
+            await loadEntries();
+            await loadStats();
+            checkAndScheduleReminder();
+            hideLoginScreen();
+        };
+        
+        const loadSettings = async () => {
+            try {
+                const theme = await dbGet('settings', 'theme');
+                if (theme) {
+                    setTheme(theme.value);
+                    $(`input[name="theme"][value="${theme.value}"]`).checked = true;
+                }
+                
+                const reminderSetting = await dbGet('settings', 'reminder');
+                if (reminderSetting) {
+                    $('#enable-reminders').checked = reminderSetting.enabled;
+                    $('#reminder-time').value = reminderSetting.time || '21:00';
+                    $('#reminder-settings').style.display = reminderSetting.enabled ? 'block' : 'none';
+                }
+                
+                const passwordSetting = await dbGet('settings', 'password');
+                if (passwordSetting) {
+                    $('#enable-password').checked = !!passwordSetting.value;
+                    $('#password-container').style.display = passwordSetting.value ? 'block' : 'none';
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        };
+        
+        const loadTodayJournal = () => {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            $('#entry-date').value = `${year}-${month}-${day}`;
+        };
+        
+        const loadPrompts = async () => {
+            try {
+                let promptsData = await dbGet('settings', 'prompts');
+                
+                if (!promptsData) {
+                    // Initialize with defaults
+                    promptsData = { id: 'prompts', prompts: DEFAULT_PROMPTS };
+                    await dbPut('settings', promptsData);
+                }
+                
+                renderPrompts(promptsData.prompts);
+                renderPromptsList(promptsData.prompts);
+            } catch (error) {
+                console.error('Error loading prompts:', error);
+                showSnackbar('Error loading prompts');
+            }
+        };
+        
+        const renderPrompts = (prompts) => {
+            const container = $('#prompts-container');
+            container.innerHTML = '';
+            
+            prompts.forEach((prompt, index) => {
+                const promptDiv = ce('div');
+                promptDiv.className = 'prompt';
+                
+                const promptText = ce('div');
+                promptText.className = 'prompt-text';
+                promptText.textContent = prompt;
+                
+                const responseInput = ce('textarea');
+                responseInput.setAttribute('data-prompt-id', index);
+                responseInput.setAttribute('placeholder', 'Your reflection...');
+                
+                promptDiv.appendChild(promptText);
+                promptDiv.appendChild(responseInput);
+                container.appendChild(promptDiv);
+            });
+        };
+        
+        const renderPromptsList = (prompts) => {
+            const list = $('#prompts-list');
+            list.innerHTML = '';
+            
+            prompts.forEach((prompt, index) => {
+                const item = ce('div');
+                item.className = 'prompt-item';
+                
+                const text = ce('div');
+                text.textContent = prompt;
+                
+                const actions = ce('div');
+                actions.className = 'prompt-actions';
+                
+                const editBtn = ce('button');
+                editBtn.className = 'action-btn';
+                editBtn.textContent = '✏️';
+                editBtn.onclick = () => editPrompt(index);
+                
+                const deleteBtn = ce('button');
+                deleteBtn.className = 'action-btn';
+                deleteBtn.textContent = '🗑️';
+                deleteBtn.onclick = () => deletePrompt(index);
+                
+                actions.appendChild(editBtn);
+                actions.appendChild(deleteBtn);
+                
+                item.appendChild(text);
+                item.appendChild(actions);
+                list.appendChild(item);
+            });
+        };
+        
+        const loadEntries = async () => {
+            try {
+                const entries = await dbGetAll('entries');
+                
+                // Sort by date, newest first
+                entries.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                // Extract all unique tags
+                const tagsSet = new Set();
+                entries.forEach(entry => {
+                    if (entry.tags && entry.tags.length) {
+                        entry.tags.forEach(tag => tagsSet.add(tag));
+                    }
+                });
+                allTags = [...tagsSet];
+                
+                renderEntries(entries);
+                renderFilterTags(allTags);
+                renderSuggestedTags(allTags);
+            } catch (error) {
+                console.error('Error loading entries:', error);
+                showSnackbar('Error loading journal entries');
+            }
+        };
+        
+        const renderEntries = (entries) => {
+            const entriesList = $('#entries-list');
+            entriesList.innerHTML = '';
+            
+            if (entries.length === 0) {
+                const emptyMsg = ce('div');
+                emptyMsg.className = 'entry-item';
+                emptyMsg.textContent = 'No entries found. Start your reflection journey today!';
+                entriesList.appendChild(emptyMsg);
+                return;
+            }
+            
+            entries.forEach(entry => {
+                const item = ce('div');
+                item.className = 'entry-item';
+                item.setAttribute('data-id', entry.id);
+                
+                const dateEl = ce('div');
+                dateEl.className = 'entry-date';
+                dateEl.textContent = formatDate(entry.date);
+                
+                const preview = ce('div');
+                preview.className = 'entry-preview';
+                
+                // Create preview text from first prompt response
+                if (entry.responses && entry.responses.length) {
+                    preview.textContent = entry.responses.response.substring(0, 100);
+                    if (entry.responses.response.length > 100) {
+                        preview.textContent += '...';
+                    }
+                } else {
+                    preview.textContent = 'No content';
+                }
+                
+                const tags = ce('div');
+                tags.className = 'tags';
+                
+                if (entry.tags && entry.tags.length) {
+                    entry.tags.forEach(tag => {
+                        const tagEl = ce('span');
+                        tagEl.className = 'tag';
+                        tagEl.textContent = tag;
+                        tags.appendChild(tagEl);
+                    });
+                }
+                
+                item.appendChild(dateEl);
+                item.appendChild(preview);
+                item.appendChild(tags);
+                
+                item.addEventListener('click', () => viewEntry(entry.id));
+                
+                entriesList.appendChild(item);
+            });
+        };
+        
+        const renderFilterTags = (tags) => {
+            const container = $('#filter-tags');
+            container.innerHTML = '';
+            
+            if (tags.length === 0) return;
+            
+            tags.slice(0, 10).forEach(tag => {
+                const tagEl = ce('span');
+                tagEl.className = 'tag';
+                tagEl.textContent = tag;
+                tagEl.addEventListener('click', () => {
+                    filterEntriesByTag(tag);
+                });
+                container.appendChild(tagEl);
+            });
+        };
+        
+        const renderSuggestedTags = (tags) => {
+            const container = $('#suggested-tags');
+            container.innerHTML = '';
+            
+            if (tags.length === 0) return;
+            
+            tags.slice(0, 8).forEach(tag => {
+                const tagEl = ce('span');
+                tagEl.className = 'tag';
+                tagEl.textContent = tag;
+                tagEl.addEventListener('click', () => {
+                    const tagsInput = $('#entry-tags');
+                    const currentTags = tagsInput.value
+                        .split(',')
+                        .map(t => t.trim())
+                        .filter(t => t.length > 0);
+                    
+                    if (!currentTags.includes(tag)) {
+                        currentTags.push(tag);
+                        tagsInput.value = currentTags.join(', ');
+                    }
+                });
+                container.appendChild(tagEl);
+            });
+        };
+        
+        const viewEntry = async (id) => {
+            try {
+                const entry = await dbGet('entries', id);
+                if (!entry) {
+                    showSnackbar('Entry not found');
+                    return;
+                }
+                
+                currentEntryId = id;
+                
+                $('#detail-date').textContent = formatDate(entry.date);
+                
+                const tagsContainer = $('#detail-tags');
+                tagsContainer.innerHTML = '';
+                
+                if (entry.tags && entry.tags.length) {
+                    entry.tags.forEach(tag => {
+                        const tagEl = ce('span');
+                        tagEl.className = 'tag';
+                        tagEl.textContent = tag;
+                        tagsContainer.appendChild(tagEl);
+                    });
+                }
+                
+                const contentContainer = $('#detail-content');
+                contentContainer.innerHTML = '';
+                
+                if (entry.responses && entry.responses.length) {
+                    entry.responses.forEach(response => {
+                        const responseDiv = ce('div');
+                        responseDiv.className = 'prompt-response';
+                        
+                        const promptTitle = ce('h4');
+                        promptTitle.textContent = response.prompt;
+                        
+                        const responseText = ce('div');
+                        responseText.textContent = response.response;
+                        
+                        responseDiv.appendChild(promptTitle);
+                        responseDiv.appendChild(responseText);
+                        contentContainer.appendChild(responseDiv);
+                    });
+                } else {
+                    contentContainer.textContent = 'No content available';
+                }
+                
+                $('#entry-detail').style.display = 'block';
+                
+                // Mark as active in the list
+                $$('.entry-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.getAttribute('data-id') === id) {
+                        item.classList.add('active');
+                    }
+                });
+            } catch (error) {
+                console.error('Error viewing entry:', error);
+                showSnackbar('Error loading entry details');
+            }
+        };
+        
+        const filterEntriesByTag = async (tag) => {
+            try {
+                const entries = await dbGetAll('entries');
+                const filtered = entries.filter(entry => 
+                    entry.tags && entry.tags.includes(tag)
+                );
+                
+                filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                renderEntries(filtered);
+                
+                // Show active filter
+                $$('#filter-tags .tag').forEach(tagEl => {
+                    tagEl.classList.remove('active');
+                    if (tagEl.textContent === tag) {
+                        tagEl.classList.add('active');
+                    }
+                });
+            } catch (error) {
+                console.error('Error filtering entries:', error);
+                showSnackbar('Error filtering entries');
+            }
+        };
+        
+        const loadStats = async () => {
+            try {
+                const entries = await dbGetAll('entries');
+                
+                // Total entries
+                $('#stat-total').textContent = entries.length;
+                
+                // Calculate streak
+                let streak = 0;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const dates = entries.map(entry => {
+                    const date = new Date(entry.date);
+                    date.setHours(0, 0, 0, 0);
+                    return date.getTime();
+                });
+                
+                dates.sort((a, b) => b - a);
+                
+                // Check if there's an entry today
+                const todayEntry = dates.includes(today.getTime());
+                let currentDate = todayEntry ? today : new Date(today);
+                
+                if (todayEntry) streak = 1;
+                
+                for (let i = 1; i < 365; i++) {
+                    currentDate = new Date(currentDate);
+                    currentDate.setDate(currentDate.getDate() - 1);
+                    
+                    if (dates.includes(currentDate.getTime())) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                }
+                
+                $('#stat-streak').textContent = `${streak} day${streak !== 1 ? 's' : ''}`;
+                
+                // Most used tag
+                const tagCounts = {};
+                entries.forEach(entry => {
+                    if (entry.tags && entry.tags.length) {
+                        entry.tags.forEach(tag => {
+                            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+                        });
+                    }
+                });
+                
+                let mostUsedTag = '-';
+                let maxCount = 0;
+                
+                for (const tag in tagCounts) {
+                    if (tagCounts[tag] > maxCount) {
+                        maxCount = tagCounts[tag];
+                        mostUsedTag = tag;
+                    }
+                }
+                
+                $('#stat-tag').textContent = mostUsedTag;
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        };
+        
+        const saveEntry = async (event) => {
+            event.preventDefault();
+            
+            try {
+                const date = $('#entry-date').value;
+                
+                // Check if date is valid
+                if (!date) {
+                    showSnackbar('Please select a date');
+                    return;
+                }
+                
+                // Get all prompt responses
+                const responsesElements = $$('#prompts-container textarea');
+                const responses = [];
+                const promptsData = await dbGet('settings', 'prompts');
+                
+                responsesElements.forEach(element => {
+                    const promptId = parseInt(element.getAttribute('data-prompt-id'));
+                    responses.push({
+                        prompt: promptsData.prompts[promptId],
+                        response: element.value
+                    });
+                });
+                
+                // Process tags
+                const tagsInput = $('#entry-tags').value;
+                const tags = tagsInput
+                    .split(',')
+                    .map(tag => tag.trim().toLowerCase())
+                    .filter(tag => tag.length > 0);
+                
+                // Create entry object
+                const entry = {
+                    id: currentEntryId || Date.now().toString(),
+                    date: new Date(date).toISOString(),
+                    responses,
+                    tags,
+                    createdAt: new Date().toISOString()
+                };
+                
+                await dbPut('entries', entry);
+                
+                // Reset form and update UI
+                $('#journal-form').reset();
+                loadTodayJournal();
+                currentEntryId = null;
+                
+                await loadEntries();
+                await loadStats();
+                
+                showSnackbar('Entry saved successfully');
+                
+                // Switch to entries tab
+                switchTab('tab-entries');
+            } catch (error) {
+                console.error('Error saving entry:', error);
+                showSnackbar('Error saving entry');
+            }
+        };
+        
+        const editEntry = async () => {
+            if (!currentEntryId) return;
+            
+            try {
+                const entry = await dbGet('entries', currentEntryId);
+                
+                // Set date
+                const date = new Date(entry.date);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                $('#entry-date').value = `${year}-${month}-${day}`;
+                
+                // Set tags
+                $('#entry-tags').value = entry.tags.join(', ');
+                
+                // Get current prompts
+                const promptsData = await dbGet('settings', 'prompts');
+                
+                // Render prompts with existing responses
+                renderPrompts(promptsData.prompts);
+                
+                // Fill in existing responses
+                entry.responses.forEach(response => {
+                    const promptIndex = promptsData.prompts.indexOf(response.prompt);
+                    if (promptIndex >= 0) {
+                        const textarea = $(`textarea[data-prompt-id="${promptIndex}"]`);
+                        if (textarea) textarea.value = response.response;
+                    }
+                });
+                
+                // Switch to journal tab
+                switchTab('tab-journal');
+            } catch (error) {
+                console.error('Error editing entry:', error);
+                showSnackbar('Error loading entry for editing');
+            }
+        };
+        
+        const deleteEntry = () => {
+            if (!currentEntryId) return;
+            
+            confirmAction(
+                'Delete Entry',
+                'Are you sure you want to delete this entry? This action cannot be undone.',
+                async () => {
+                    try {
+                        await dbDelete('entries', currentEntryId);
+                        
+                        $('#entry-detail').style.display = 'none';
+                        currentEntryId = null;
+                        
+                        await loadEntries();
+                        await loadStats();
+                        
+                        showSnackbar('Entry deleted successfully');
+                    } catch (error) {
+                        console.error('Error deleting entry:', error);
+                        showSnackbar('Error deleting entry');
+                    }
+                }
+            );
+        };
+        
+        const addPrompt = async (event) => {
+            event.preventDefault();
+            
+            const newPromptText = $('#new-prompt').value.trim();
+            
+            if (!newPromptText) {
+                showSnackbar('Please enter a prompt');
+                return;
+            }
+            
+            try {
+                const promptsData = await dbGet('settings', 'prompts');
+                promptsData.prompts.push(newPromptText);
+                
+                await dbPut('settings', promptsData);
+                
+                $('#new-prompt').value = '';
+                
+                renderPrompts(promptsData.prompts);
+                renderPromptsList(promptsData.prompts);
+                
+                showSnackbar('Prompt added successfully');
+            } catch (error) {
+                console.error('Error adding prompt:', error);
+                showSnackbar('Error adding prompt');
+            }
+        };
+        
+        const editPrompt = async (index) => {
+            try {
+                const promptsData = await dbGet('settings', 'prompts');
+                const currentPrompt = promptsData.prompts[index];
+                
+                const newPrompt = prompt('Edit prompt:', currentPrompt);
+                
+                if (newPrompt !== null && newPrompt.trim() !== '') {
+                    promptsData.prompts[index] = newPrompt.trim();
+                    
+                    await dbPut('settings', promptsData);
+                    
+                    renderPrompts(promptsData.prompts);
+                    renderPromptsList(promptsData.prompts);
+                    
+                    showSnackbar('Prompt updated successfully');
+                }
+            } catch (error) {
+                console.error('Error editing prompt:', error);
+                showSnackbar('Error updating prompt');
+            }
+        };
+        
+        const deletePrompt = async (index) => {
+            try {
+                const promptsData = await dbGet('settings', 'prompts');
+                
+                if (promptsData.prompts.length <= 1) {
+                    showSnackbar('You must have at least one prompt');
+                    return;
+                }
+                
+                promptsData.prompts.splice(index, 1);
+                
+                await dbPut('settings', promptsData);
+                
+                renderPrompts(promptsData.prompts);
+                renderPromptsList(promptsData.prompts);
+                
+                showSnackbar('Prompt deleted successfully');
+            } catch (error) {
+                console.error('Error deleting prompt:', error);
+                showSnackbar('Error deleting prompt');
+            }
+        };
+        
+        const resetPrompts = async () => {
+            confirmAction(
+                'Reset Prompts',
+                'Are you sure you want to reset all prompts to default? This cannot be undone.',
+                async () => {
+                    try {
+                        await dbPut('settings', { id: 'prompts', prompts: DEFAULT_PROMPTS });
+                        
+                        renderPrompts(DEFAULT_PROMPTS);
+                        renderPromptsList(DEFAULT_PROMPTS);
+                        
+                        showSnackbar('Prompts reset to defaults');
+                    } catch (error) {
+                        console.error('Error resetting prompts:', error);
+                        showSnackbar('Error resetting prompts');
+                    }
+                }
+            );
+        };
+        
+        const exportData = async () => {
+            try {
+                const entries = await dbGetAll('entries');
+                const settings = await dbGetAll('settings');
+                
+                const data = {
+                    entries,
+                    settings,
+                    exportDate: new Date().toISOString(),
+                    appVersion: '1.0.0'
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = ce('a');
+                a.href = url;
+                a.download = `nafs-reckoner-export-${new Date().toISOString().slice(0, 10)}.json`;
+                a.click();
+                
+                URL.revokeObjectURL(url);
+                
+                showSnackbar('Data exported successfully');
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                showSnackbar('Error exporting data');
+            }
+        };
+        
+        const importData = async (event) => {
+            const file = event.target.files;
+            if (!file) return;
+            
+            try {
+                const reader = new FileReader();
+                
+                reader.onload = async (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        if (!data.entries || !Array.isArray(data.entries)) {
+                            throw new Error('Invalid import file format');
+                        }
+                        
+                        confirmAction(
+                            'Import Data',
+                            `Are you sure you want to import ${data.entries.length} entries? This will overwrite any existing entries with the same IDs.`,
+                            async () => {
+                                try {
+                                    // Import entries
+                                    for (const entry of data.entries) {
+                                        await dbPut('entries', entry);
+                                    }
+                                    
+                                    // Import settings if available
+                                    if (data.settings && Array.isArray(data.settings)) {
+                                        for (const setting of data.settings) {
+                                            // Don't import password
+                                            if (setting.id !== 'password') {
+                                                await dbPut('settings', setting);
+                                            }
+                                        }
+                                    }
+                                    
+                                    await loadPrompts();
+                                    await loadEntries();
+                                    await loadStats();
+                                    
+                                    showSnackbar('Data imported successfully');
+                                    closeModal($('#settings-modal'));
+                                } catch (error) {
+                                    console.error('Error during import:', error);
+                                    showSnackbar('Error importing data');
+                                }
+                            }
+                        );
+                    } catch (error) {
+                        console.error('Error parsing import file:', error);
+                        showSnackbar('Invalid import file format');
+                    }
+                };
+                
+                reader.readAsText(file);
+            } catch (error) {
+                console.error('Error reading import file:', error);
+                showSnackbar('Error reading import file');
+            }
+        };
+        
+        const clearAllData = () => {
+            confirmAction(
+                'Clear All Data',
+                'Are you sure you want to delete ALL your journal entries? This action cannot be undone.',
+                async () => {
+                    try {
+                        await dbClear('entries');
+                        
+                        currentEntryId = null;
+                        $('#entry-detail').style.display = 'none';
+                        
+                        await loadEntries();
+                        await loadStats();
+                        
+                        showSnackbar('All entries deleted successfully');
+                        closeModal($('#settings-modal'));
+                    } catch (error) {
+                        console.error('Error clearing data:', error);
+                        showSnackbar('Error clearing data');
+                    }
+                }
+            );
+        };
+        
+        const setTheme = (theme) => {
+            document.body.setAttribute('data-theme', theme);
+            currentTheme = theme;
+        };
+        
+        const saveTheme = async () => {
+            try {
+                await dbPut('settings', { id: 'theme', value: currentTheme });
+                showSnackbar('Theme saved successfully');
+            } catch (error) {
+                console.error('Error saving theme:', error);
+                showSnackbar('Error saving theme');
+            }
+        };
+        
+        const savePassword = async () => {
+            try {
+                const password = $('#password').value;
+                
+                if (!$('#enable-password').checked) {
+                    await dbPut('settings', { id: 'password', value: null });
+                    showSnackbar('Password protection disabled');
+                    return;
+                }
+                
+                if (!password) {
+                    showSnackbar('Please enter a password');
+                    return;
+                }
+                
+                // Simple password hashing
+                const hashedPassword = await hashPassword(password);
+                
+                await dbPut('settings', { id: 'password', value: hashedPassword });
+                
+                showSnackbar('Password saved successfully');
+            } catch (error) {
+                console.error('Error saving password:', error);
+                showSnackbar('Error saving password');
+            }
+        };
+        
+        const saveReminder = async () => {
+            try {
+                const enabled = $('#enable-reminders').checked;
+                const time = $('#reminder-time').value;
+                
+                await dbPut('settings', { 
+                    id: 'reminder',
+                    enabled,
+                    time
+                });
+                
+                checkAndScheduleReminder();
+                
+                showSnackbar('Reminder settings saved');
+            } catch (error) {
+                console.error('Error saving reminder settings:', error);
+                showSnackbar('Error saving reminder settings');
+            }
+        };
+        
+        const checkAndScheduleReminder = async () => {
+            try {
+                const reminderSetting = await dbGet('settings', 'reminder');
+                
+                if (!reminderSetting || !reminderSetting.enabled) return;
+                
+                // Check if we have notification permission
+                if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+                    Notification.requestPermission();
+                }
+                
+                // Schedule reminder
+                const [hours, minutes] = reminderSetting.time.split(':');
+                const now = new Date();
+                const reminderTime = new Date();
+                reminderTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+                
+                // If time has already passed today, schedule for tomorrow
+                if (now > reminderTime) {
+                    reminderTime.setDate(reminderTime.getDate() + 1);
+                }
+                
+                const timeUntilReminder = reminderTime - now;
+                
+                // Clear any existing timers
+                if (window.reminderTimeout) {
+                    clearTimeout(window.reminderTimeout);
+                }
+                
+                // Set new timer
+                window.reminderTimeout = setTimeout(() => {
+                    showReminderNotification();
+                    // Schedule next day's reminder
+                    checkAndScheduleReminder();
+                }, timeUntilReminder);
+            } catch (error) {
+                console.error('Error scheduling reminder:', error);
+            }
+        };
+        
+        const showReminderNotification = () => {
+            if (Notification.permission === 'granted') {
+const notification = new Notification('Nafs Reckoner', {
+body: 'Time for your daily muhasabah (self-accountability)',
+icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMzYTdiZDUiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIj48cGF0aCBkPSJNMiAzaDYiPjwvcGF0aD48cGF0aCBkPSJNMjEgM2gtNiI+PC9wYXRoPjxwYXRoIGQ9Ik04IDNhNSA1IDAgMCAxIDggMCI+PC9wYXRoPjxwYXRoIGQ9Ik0yIDE5aDYiPjwvcGF0aD48cGF0aCBkPSJNMjEgMTloLTYiPjwvcGF0aD48cGF0aCBkPSJNOCAyMWE1IDUgMCAwIDAgOCAwIj48L3BhdGg+PHBhdGggZD0iTTEyIDhWMTYiPjwvcGF0aD48cGF0aCBkPSJNOSAxMmg2Ij48L3BhdGg+PC9zdmc+'
+});
+
+                notification.onclick = () => {
+                    window.focus();
+                    notification.close();
+                };
+            }
+        };
+        
+        const hashPassword = async (password) => {
+            // Simple password hashing for client-side only app
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        };
+        
+        const checkPassword = async (password, hash) => {
+            const inputHash = await hashPassword(password);
+            return inputHash === hash;
+        };
+        
+        const switchTab = (tabId) => {
+            $$('.tab').forEach(tab => tab.classList.remove('active'));
+            $$('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            $(`.tab[data-tab="${tabId}"]`).classList.add('active');
+            $(`#${tabId}`).classList.add('active');
+        };
+        
+        const openModal = (modal) => {
+            modal.classList.add('active');
+        };
+        
+        const closeModal = (modal) => {
+            modal.classList.remove('active');
+        };
+        
+        const confirmAction = (title, message, actionCallback) => {
+            $('#confirm-title').textContent = title;
+            $('#confirm-message').textContent = message;
+            
+            const confirmModal = $('#confirm-modal');
+            openModal(confirmModal);
+            
+            const confirmBtn = $('#confirm-action');
+            const cancelBtn = $('#confirm-cancel');
+            
+            // Remove existing event listeners
+            const confirmBtnClone = confirmBtn.cloneNode(true);
+            const cancelBtnClone = cancelBtn.cloneNode(true);
+            confirmBtn.parentNode.replaceChild(confirmBtnClone, confirmBtn);
+            cancelBtn.parentNode.replaceChild(cancelBtnClone, cancelBtn);
+            
+            // Add new event listeners
+            $('#confirm-action').addEventListener('click', () => {
+                closeModal(confirmModal);
+                actionCallback();
+            });
+            
+            $('#confirm-cancel').addEventListener('click', () => {
+                closeModal(confirmModal);
+            });
+        };
+        
+        const setupEventListeners = () => {
+            // Navigation tabs
+            $$('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabId = tab.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+            
+            // Settings modal tabs
+            $$('#settings-modal .tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    $$('#settings-modal .tab').forEach(t => t.classList.remove('active'));
+                    $$('#settings-modal .tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    $(`#${tabId}`).classList.add('active');
+                });
+            });
+            
+            // Open settings modal
+            $('#open-settings').addEventListener('click', () => {
+                openModal($('#settings-modal'));
+            });
+            
+            // Close modals
+            $$('.close-modal').forEach(button => {
+                button.addEventListener('click', () => {
+                    closeModal(button.closest('.modal'));
+                });
+            });
+            
+            // Journal form submission
+            $('#journal-form').addEventListener('submit', saveEntry);
+            
+            // Entry actions
+            $('#edit-entry').addEventListener('click', editEntry);
+            $('#delete-entry').addEventListener('click', deleteEntry);
+            
+            // Theme selection
+            $$('input[name="theme"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    setTheme(radio.value);
+                    saveTheme();
+                });
+            });
+            
+            // Password protection
+            $('#enable-password').addEventListener('change', () => {
+                $('#password-container').style.display = $('#enable-password').checked ? 'block' : 'none';
+                
+                if (!$('#enable-password').checked) {
+                    savePassword();
+                }
+            });
+            
+            $('#save-password').addEventListener('click', savePassword);
+            
+            // Password strength meter
+            $('#password').addEventListener('input', (e) => {
+                const password = e.target.value;
+                const strength = calculatePasswordStrength(password);
+                $('#settings-password-strength').style.width = `${strength}%`;
+            });
+            
+            $('#setup-password').addEventListener('input', (e) => {
+                const password = e.target.value;
+                const strength = calculatePasswordStrength(password);
+                $('#password-strength').style.width = `${strength}%`;
+                
+                let feedback = '';
+                if (password.length === 0) {
+                    feedback = 'No password (journal will be accessible without password)';
+                } else if (strength < 30) {
+                    feedback = 'Weak password';
+                } else if (strength < 60) {
+                    feedback = 'Moderate password';
+                } else {
+                    feedback = 'Strong password';
+                }
+                
+                $('#password-feedback').textContent = feedback;
+            });
+            
+            // Prompts management
+            $('#add-prompt-form').addEventListener('submit', addPrompt);
+            $('#reset-prompts').addEventListener('click', resetPrompts);
+            
+            // Reminders
+            $('#enable-reminders').addEventListener('change', () => {
+                $('#reminder-settings').style.display = $('#enable-reminders').checked ? 'block' : 'none';
+                
+                if ($('#enable-reminders').checked && Notification.permission !== 'granted') {
+                    Notification.requestPermission();
+                }
+                
+                saveReminder();
+            });
+            
+            $('#save-reminder').addEventListener('click', saveReminder);
+            
+            // Data management
+            $('#export-data').addEventListener('click', exportData);
+            
+            $('#import-trigger').addEventListener('click', () => {
+                $('#import-file').click();
+            });
+            
+            $('#import-file').addEventListener('change', importData);
+            
+            $('#clear-data').addEventListener('click', clearAllData);
+            
+            // Search entries 
+            $('#search-entries').addEventListener('input', async (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                
+                try {
+                    const entries = await dbGetAll('entries');
+                    
+                    const filtered = entries.filter(entry => {
+                        // Search in tags
+                        if (entry.tags && entry.tags.some(tag => tag.toLowerCase().includes(searchTerm))) {
+                            return true;
+                        }
+                        
+                        // Search in responses
+                        if (entry.responses && entry.responses.some(response => 
+                            response.response.toLowerCase().includes(searchTerm) ||
+                            response.prompt.toLowerCase().includes(searchTerm)
+                        )) {
+                            return true;
+                        }
+                        
+                        // Search in date
+                        const entryDate = new Date(entry.date);
+                        const dateString = entryDate.toLocaleDateString();
+                        if (dateString.toLowerCase().includes(searchTerm)) {
+                            return true;
+                        }
+                        
+                        return false;
+                    });
+                    
+                    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+                    
+                    renderEntries(filtered);
+                } catch (error) {
+                    console.error('Error searching entries:', error);
+                }
+            });
+            
+            // Login form
+            $('#login-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const password = $('#login-password').value;
+                const passwordSetting = await dbGet('settings', 'password');
+                
+                if (!passwordSetting || !passwordSetting.value) {
+                    await loadApp();
+                    return;
+                }
+                
+                const isValid = await checkPassword(password, passwordSetting.value);
+                
+                if (isValid) {
+                    await loadApp();
+                } else {
+                    $('#login-error').textContent = 'Incorrect password';
+                    $('#login-password').value = '';
+                }
+            });
+            
+            // Setup form
+            $('#setup-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const password = $('#setup-password').value;
+                
+                if (password) {
+                    const hashedPassword = await hashPassword(password);
+                    await dbPut('settings', { id: 'password', value: hashedPassword });
+                } else {
+                    await dbPut('settings', { id: 'password', value: null });
+                }
+                
+                await loadApp();
+            });
+        };
+        
+        const calculatePasswordStrength = (password) => {
+            if (!password) return 0;
+            
+            let strength = 0;
+            
+            // Length contribution (up to 40%)
+            strength += Math.min(password.length * 4, 40);
+            
+            // Character variety contribution (up to 60%)
+            if (/[a-z]/.test(password)) strength += 10;
+            if (/[A-Z]/.test(password)) strength += 10;
+            if (/[0-9]/.test(password)) strength += 10;
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 10;
+            
+            // Bonus for mixed character types
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+                strength += 10;
+            }
+            
+            if (/[a-zA-Z]/.test(password) && /[0-9]/.test(password) && /[^a-zA-Z0-9]/.test(password)) {
+                strength += 10;
+            }
+            
+            return Math.min(strength, 100);
+        };
+        
+        // Initialize the app when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+    </body>
+</html>

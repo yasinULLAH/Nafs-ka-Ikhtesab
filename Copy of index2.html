@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nafs Reckoner</title>
+    <meta name="author" content="Yasin Ullah">
+    <style>
+        :root {
+            --primary-color: #4CAF50; /* Green */
+            --secondary-color: #8BC34A; /* Light Green */
+            --background-color: #E8F5E9; /* Lightest Green */
+            --text-color: #333;
+            --card-background: #FFFFFF;
+            --border-color: #C8E6C9;
+            --accent-color: #FF9800; /* Orange */
+            --danger-color: #F44336; /* Red */
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --border-radius: 8px;
+            --padding: 16px;
+            --margin: 16px;
+            --box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="Nightly Review"] {
+            --primary-color: #3F51B5; /* Indigo */
+            --secondary-color: #7986CB; /* Light Indigo */
+            --background-color: #E8EAF6; /* Lightest Indigo */
+            --text-color: #eee;
+            --card-background: #5C6BC0; /* Darker Indigo */
+            --border-color: #C5CAE9;
+            --accent-color: #FFC107; /* Amber */
+            --danger-color: #EF5350; /* Light Red */
+        }
+
+        body {
+            font-family: var(--font-family);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: var(--padding);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        main {
+            flex-grow: 1;
+            padding: var(--padding);
+            max-width: 800px;
+            margin: var(--margin) auto;
+            width: 100%;
+        }
+
+        .card {
+            background-color: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: var(--padding);
+            margin-bottom: var(--margin);
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+        }
+
+        h2, h3 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 8px;
+            margin-bottom: var(--margin);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        input[type="text"],
+        input[type="date"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: var(--margin);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            box-sizing: border-box;
+            font-family: var(--font-family);
+            font-size: 1rem;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        button.secondary {
+            background-color: var(--accent-color);
+        }
+
+        button.secondary:hover {
+            background-color: darken(var(--accent-color), 10%);
+        }
+
+        button.danger {
+            background-color: var(--danger-color);
+        }
+
+        button.danger:hover {
+            background-color: darken(var(--danger-color), 10%);
+        }
+
+        .entry-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .entry-item {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: var(--padding);
+            margin-bottom: var(--margin);
+        }
+
+        .entry-item h4 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+        }
+
+        .entry-item p {
+            margin-bottom: 8px;
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
+
+        .entry-item .tags {
+            font-style: italic;
+            color: var(--secondary-color);
+            margin-bottom: 8px;
+        }
+
+        .entry-item .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #password-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+			display:none;
+        }
+
+        #password-prompt {
+            background-color: var(--card-background);
+            padding: var(--padding);
+            border-radius: var(--border-radius);
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        #password-prompt input {
+            margin-bottom: var(--margin);
+        }
+
+        .settings-section {
+            margin-bottom: var(--margin);
+            padding-bottom: var(--padding);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .settings-section:last-child {
+            border-bottom: none;
+        }
+
+        .prompt-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .prompt-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            padding: 8px var(--padding);
+            margin-bottom: 8px;
+        }
+
+        .prompt-item span {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .prompt-item button {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: var(--padding);
+            margin-top: var(--margin);
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            main {
+                padding: var(--padding) 8px;
+            }
+
+            .card {
+                padding: 12px;
+            }
+
+            button {
+                padding: 8px 12px;
+                font-size: 0.9rem;
+            }
+        }
+		#settings-section > div:nth-child(3){
+			display:none;
+		}
+    </style>
+</head>
+<body>
+
+    <div id="password-overlay" class="hidden">
+        <div id="password-prompt" class="card">
+            <h2>Enter Password</h2>
+            <input type="password" id="app-password" placeholder="Enter your password">
+            <button id="password-submit">Submit</button>
+            <p id="password-error" style="color: var(--danger-color);" class="hidden">Incorrect password.</p>
+        </div>
+    </div>
+
+    <header>
+        <h1>Nafs Reckoner</h1>
+        <p>Daily Muhasabah Journal</p>
+    </header>
+
+    <main>
+        <section id="journal-entry-section" class="card">
+            <h2>New Entry</h2>
+            <label for="entry-date">Date:</label>
+            <input type="date" id="entry-date" required>
+
+            <div id="prompted-questions">
+                <!-- Prompts will be loaded here -->
+            </div>
+
+            <label for="entry-notes">Additional Notes:</label>
+            <textarea id="entry-notes" placeholder="Any other reflections..."></textarea>
+
+            <label for="entry-tags">Tags (comma-separated):</label>
+            <input type="text" id="entry-tags" placeholder="e.g., patience, gratitude, anger">
+
+            <button id="save-entry">Save Entry</button>
+        </section>
+
+        <section id="journal-list-section" class="card">
+            <h2>Past Entries</h2>
+            <ul id="entry-list" class="entry-list">
+                <!-- Journal entries will be loaded here -->
+            </ul>
+        </section>
+
+        <section id="settings-section" class="card">
+            <h2>Settings</h2>
+
+            <div class="settings-section">
+                <h3>Customize Prompts</h3>
+                <ul id="custom-prompts-list" class="prompt-list">
+                    <!-- Custom prompts will be loaded here -->
+                </ul>
+                <input type="text" id="new-prompt-text" placeholder="Add a new prompt">
+                <button id="add-prompt">Add Prompt</button>
+            </div>
+
+            <div class="settings-section">
+                <h3>App Password</h3>
+                <p>Set a password to protect your journal.</p>
+                <input type="password" id="set-app-password" placeholder="Set new password">
+                <button id="save-app-password">Set Password</button>
+                <button id="remove-app-password" class="danger">Remove Password</button>
+            </div>
+
+            <div class="settings-section">
+                <h3>Theme</h3>
+                <label for="theme-select">Choose Theme:</label>
+                <select id="theme-select">
+                    <option value="Dawn Reflection">Dawn Reflection</option>
+                    <option value="Nightly Review">Nightly Review</option>
+                </select>
+            </div>
+
+            <div class="settings-section">
+                <h3>Backup and Restore</h3>
+                <button id="export-data">Export Data</button>
+                <input type="file" id="import-data" accept=".json" class="hidden">
+                <label for="import-data" class="button secondary">Import Data</label>
+            </div>
+
+            <div class="settings-section">
+                <h3>Reminders (Future Feature)</h3>
+                <p>Set daily reminders for Muhasabah.</p>
+                <button disabled>Set Reminder</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2023 Nafs Reckoner. Developed by Yasin Ullah.</p>
+    </footer>
+
+    <script>
+        const DB_NAME = 'NafsReckonerDB';
+        const DB_VERSION = 1;
+        const STORE_ENTRIES = 'entries';
+        const STORE_SETTINGS = 'settings';
+
+        let db;
+        let appPassword = "admin";
+        let isAuthenticated = false;
+
+        const defaultPrompts = [
+            "Prayers today: Quality? Focus?",
+            "Kind words spoken?",
+            "Time wasted?",
+            "Gratitude for...",
+            "Areas for improvement tomorrow?",
+            "How did I handle challenging situations?",
+            "Was I mindful of Allah in my actions?",
+            "Did I fulfill my responsibilities?",
+            "What good deeds did I do?",
+            "What mistakes did I make?"
+        ];
+
+        // IndexedDB Helper Functions
+        function openDatabase() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_ENTRIES)) {
+                        db.createObjectStore(STORE_ENTRIES, { keyPath: 'id', autoIncrement: true });
+                    }
+                    if (!db.objectStoreNames.contains(STORE_SETTINGS)) {
+                        db.createObjectStore(STORE_SETTINGS, { keyPath: 'key' });
+                    }
+                };
+
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    resolve(db);
+                };
+
+                request.onerror = (event) => {
+                    console.error('IndexedDB error:', event.target.errorCode);
+                    reject('Database error');
+                };
+            });
+        }
+
+        function addEntry(entry) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_ENTRIES], 'readwrite');
+                const store = transaction.objectStore(STORE_ENTRIES);
+                const request = store.add(entry);
+
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function getAllEntries() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_ENTRIES], 'readonly');
+                const store = transaction.objectStore(STORE_ENTRIES);
+                const request = store.getAll();
+
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function deleteEntry(id) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction([STORE_ENTRIES], 'readwrite');
+                const store = transaction.objectStore(STORE_ENTRIES);
+                const request = store.delete(id);
+
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function getSetting(key) {
+            return new Promise((resolve, reject) => {
+                if (!db) {
+                    reject('Database not initialized');
+                    return;
+                }
+                const transaction = db.transaction([STORE_SETTINGS], 'readonly');
+                const store = transaction.objectStore(STORE_SETTINGS);
+                const request = store.get(key);
+
+                request.onsuccess = () => resolve(request.result ? request.result.value : null);
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function setSetting(key, value) {
+            return new Promise((resolve, reject) => {
+                 if (!db) {
+                    reject('Database not initialized');
+                    return;
+                }
+                const transaction = db.transaction([STORE_SETTINGS], 'readwrite');
+                const store = transaction.objectStore(STORE_SETTINGS);
+                const request = store.put({ key: key, value: value });
+
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        function deleteSetting(key) {
+            return new Promise((resolve, reject) => {
+                 if (!db) {
+                    reject('Database not initialized');
+                    return;
+                }
+                const transaction = db.transaction([STORE_SETTINGS], 'readwrite');
+                const store = transaction.objectStore(STORE_SETTINGS);
+                const request = store.delete(key);
+
+                request.onsuccess = () => resolve();
+                request.onerror = (event) => reject(event.target.error);
+            });
+        }
+
+        // UI Rendering
+        async function renderEntries() {
+            if (!isAuthenticated) return;
+            const entries = await getAllEntries();
+            const entryList = document.getElementById('entry-list');
+            entryList.innerHTML = '';
+            entries.sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date descending
+
+            entries.forEach(entry => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('entry-item');
+                listItem.innerHTML = `
+                    <h4>${entry.date}</h4>
+                    ${Object.entries(entry.prompts || {}).map(([prompt, answer]) => `<p><strong>${prompt}:</strong> ${answer}</p>`).join('')}
+                    ${entry.notes ? `<p><strong>Notes:</strong> ${entry.notes}</p>` : ''}
+                    ${entry.tags && entry.tags.length > 0 ? `<p class="tags">Tags: ${entry.tags.join(', ')}</p>` : ''}
+                    <div class="actions">
+                        <button class="danger" data-id="${entry.id}">Delete</button>
+                    </div>
+                `;
+                entryList.appendChild(listItem);
+            });
+
+            // Add event listeners for delete buttons
+            entryList.querySelectorAll('.danger').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const entryId = parseInt(event.target.dataset.id, 10);
+                    if (confirm('Are you sure you want to delete this entry?')) {
+                        await deleteEntry(entryId);
+                        renderEntries(); // Re-render the list
+                    }
+                });
+            });
+        }
+
+        async function renderPrompts() {
+            if (!isAuthenticated) return;
+            const customPrompts = await getSetting('customPrompts') || [];
+            const allPrompts = [...defaultPrompts, ...customPrompts];
+
+            const promptedQuestionsDiv = document.getElementById('prompted-questions');
+            promptedQuestionsDiv.innerHTML = '';
+            allPrompts.forEach((prompt, index) => {
+                const promptDiv = document.createElement('div');
+                promptDiv.innerHTML = `
+                    <label for="prompt-${index}">${prompt}:</label>
+                    <textarea id="prompt-${index}" data-prompt="${prompt}" placeholder="Your reflection..."></textarea>
+                `;
+                promptedQuestionsDiv.appendChild(promptDiv);
+            });
+
+            const customPromptsList = document.getElementById('custom-prompts-list');
+            customPromptsList.innerHTML = '';
+            customPrompts.forEach((prompt, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('prompt-item');
+                listItem.innerHTML = `
+                    <span>${prompt}</span>
+                    <button class="danger" data-index="${index}">Remove</button>
+                `;
+                customPromptsList.appendChild(listItem);
+            });
+
+            // Add event listeners for remove prompt buttons
+            customPromptsList.querySelectorAll('.danger').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const indexToRemove = parseInt(event.target.dataset.index, 10);
+                    const currentPrompts = await getSetting('customPrompts') || [];
+                    currentPrompts.splice(indexToRemove, 1);
+                    await setSetting('customPrompts', currentPrompts);
+                    renderPrompts(); // Re-render prompts
+                });
+            });
+        }
+
+        async function loadSettings() {
+            if (!isAuthenticated) return;
+            const savedTheme = await getSetting('theme');
+            if (savedTheme) {
+                document.body.dataset.theme = savedTheme;
+                document.getElementById('theme-select').value = savedTheme;
+            } else {
+                 document.body.dataset.theme = 'Dawn Reflection'; // Default
+                 document.getElementById('theme-select').value = 'Dawn Reflection';
+            }
+            renderPrompts(); // Load and render prompts
+        }
+
+        function clearEntryForm() {
+            document.getElementById('entry-date').valueAsDate = new Date();
+            document.getElementById('entry-notes').value = '';
+            document.getElementById('entry-tags').value = '';
+            document.querySelectorAll('#prompted-questions textarea').forEach(textarea => {
+                textarea.value = '';
+            });
+        }
+
+        async function saveEntry() {
+            if (!isAuthenticated) return;
+            const date = document.getElementById('entry-date').value;
+            const notes = document.getElementById('entry-notes').value.trim();
+            const tags = document.getElementById('entry-tags').value.split(',').map(tag => tag.trim()).filter(tag => tag);
+
+            const promptsData = {};
+            document.querySelectorAll('#prompted-questions textarea').forEach(textarea => {
+                const prompt = textarea.dataset.prompt;
+                const answer = textarea.value.trim();
+                if (answer) {
+                    promptsData[prompt] = answer;
+                }
+            });
+
+            if (!date || Object.keys(promptsData).length === 0) {
+                alert('Please select a date and answer at least one prompt.');
+                return;
+            }
+
+            const entry = {
+                date: date,
+                prompts: promptsData,
+                notes: notes,
+                tags: tags,
+                timestamp: Date.now() // For potential future sorting/tracking
+            };
+
+            try {
+                await addEntry(entry);
+                alert('Entry saved successfully!');
+                clearEntryForm();
+                renderEntries();
+            } catch (error) {
+                console.error('Error saving entry:', error);
+                alert('Failed to save entry.');
+            }
+        }
+
+        async function addCustomPrompt() {
+            if (!isAuthenticated) return;
+            const newPromptText = document.getElementById('new-prompt-text').value.trim();
+            if (newPromptText) {
+                const customPrompts = await getSetting('customPrompts') || [];
+                if (!customPrompts.includes(newPromptText)) {
+                    customPrompts.push(newPromptText);
+                    await setSetting('customPrompts', customPrompts);
+                    document.getElementById('new-prompt-text').value = '';
+                    renderPrompts();
+                } else {
+                    alert('Prompt already exists.');
+                }
+            }
+        }
+
+        async function setAppPassword() {
+            const password = document.getElementById('set-app-password').value;
+            if (password) {
+                // Simple password hashing (for client-side only, not truly secure)
+                const hashedPassword = await hashPassword(password);
+                await setSetting('appPassword', hashedPassword);
+                appPassword = hashedPassword; // Update in-memory password
+                alert('Password set successfully!');
+                document.getElementById('set-app-password').value = '';
+            } else {
+                alert('Please enter a password.');
+            }
+        }
+
+        async function removeAppPassword() {
+            if (confirm('Are you sure you want to remove the password? Your journal will be unprotected.')) {
+                await deleteSetting('appPassword');
+                appPassword = null; // Update in-memory password
+                alert('Password removed.');
+            }
+        }
+
+        async function hashPassword(password) {
+            // Use Web Crypto API for basic hashing
+            const encoder = new TextEncoder();
+            const data = encoder.encode(password);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashedPassword = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+            return hashedPassword;
+        }
+
+        async function authenticate(password) {
+            const hashedPassword = await hashPassword(password);
+            return hashedPassword === appPassword;
+        }
+
+        async function checkAuthentication() {
+            try {
+                await openDatabase(); // Ensure database is open before checking settings
+                appPassword = await getSetting('appPassword');
+                if (appPassword) {
+                    document.getElementById('password-overlay').classList.remove('hidden');
+                    isAuthenticated = false;
+                } else {
+                    isAuthenticated = true;
+                    document.getElementById('password-overlay').classList.add('hidden');
+                    initializeApp();
+                }
+            } catch (error) {
+                console.error('Error checking authentication:', error);
+                // Handle database initialization error gracefully, maybe show a message
+                alert('Could not initialize database. Please try refreshing the page.');
+            }
+        }
+
+        async function handlePasswordSubmit() {
+            const enteredPassword = document.getElementById('app-password').value;
+            const passwordError = document.getElementById('password-error');
+            if (await authenticate(enteredPassword)) {
+                isAuthenticated = true;
+                document.getElementById('password-overlay').classList.add('hidden');
+                passwordError.classList.add('hidden');
+                initializeApp();
+            } else {
+                passwordError.classList.remove('hidden');
+            }
+        }
+
+        async function exportData() {
+            if (!isAuthenticated) return;
+            try {
+                const entries = await getAllEntries();
+                const settings = {};
+                const settingKeys = ['customPrompts', 'theme', 'appPassword']; // Include password for backup, but handle carefully on import
+                for (const key of settingKeys) {
+                    settings[key] = await getSetting(key);
+                }
+
+                const data = {
+                    entries: entries,
+                    settings: settings,
+                    version: DB_VERSION,
+                    timestamp: Date.now()
+                };
+
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `nafs_reckoner_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Error exporting data:', error);
+                alert('Failed to export data.');
+            }
+        }
+
+        async function importData(event) {
+            if (!isAuthenticated) return;
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+
+                    if (!data || !data.entries || !data.settings) {
+                        throw new Error('Invalid backup file format.');
+                    }
+
+                    if (confirm('Importing data will overwrite your current entries and settings. Are you sure?')) {
+                        // Clear existing data (optional, but safer for a clean import)
+                        await clearDatabase();
+
+                        // Import entries
+                        const transactionEntries = db.transaction([STORE_ENTRIES], 'readwrite');
+                        const storeEntries = transactionEntries.objectStore(STORE_ENTRIES);
+                        for (const entry of data.entries) {
+                             // Remove existing id to let IndexedDB assign a new one
+                            delete entry.id;
+                            storeEntries.add(entry);
+                        }
+
+                        // Import settings (careful with password)
+                        const transactionSettings = db.transaction([STORE_SETTINGS], 'readwrite');
+                        const storeSettings = transactionSettings.objectStore(STORE_SETTINGS);
+                        for (const key in data.settings) {
+                            if (key === 'appPassword') {
+                                // Handle password import separately or prompt user
+                                if (confirm('The backup contains a password. Do you want to set this password? (You will need to re-enter it)')) {
+                                     // For security, don't directly import the hashed password.
+                                     // Instead, prompt the user to set a new password after import.
+                                     // Or, if the backup is trusted, you could import it, but this is risky.
+                                     // For simplicity here, we'll skip importing the password directly.
+                                     console.warn("Skipping direct import of app password from backup.");
+                                } else {
+                                    continue; // Skip password import
+                                }
+                            } else {
+                                storeSettings.put({ key: key, value: data.settings[key] });
+                            }
+                        }
+
+                        transactionEntries.oncomplete = transactionSettings.oncomplete = () => {
+                            alert('Data imported successfully!');
+                            // Re-initialize the app to load imported data
+                            initializeApp();
+                        };
+
+                        transactionEntries.onerror = transactionSettings.onerror = (event) => {
+                            console.error('Import transaction error:', event.target.error);
+                            alert('Error during data import.');
+                        };
+                    }
+
+                } catch (error) {
+                    console.error('Error parsing or importing data:', error);
+                    alert('Failed to import data. Invalid file or format.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function clearDatabase() {
+             return new Promise((resolve, reject) => {
+                const transactionEntries = db.transaction([STORE_ENTRIES], 'readwrite');
+                const storeEntries = transactionEntries.objectStore(STORE_ENTRIES);
+                const clearEntriesRequest = storeEntries.clear();
+
+                const transactionSettings = db.transaction([STORE_SETTINGS], 'readwrite');
+                const storeSettings = transactionSettings.objectStore(STORE_SETTINGS);
+                const clearSettingsRequest = storeSettings.clear();
+
+                let entriesCleared = false;
+                let settingsCleared = false;
+
+                clearEntriesRequest.onsuccess = () => { entriesCleared = true; if (settingsCleared) resolve(); };
+                clearSettingsRequest.onsuccess = () => { settingsCleared = true; if (entriesCleared) resolve(); };
+
+                clearEntriesRequest.onerror = (event) => reject(event.target.error);
+                clearSettingsRequest.onerror = (event) => reject(event.target.error);
+             });
+        }
+
+
+        // Initialize App
+       async function initializeApp() {
+            try {
+                // Database is already open by checkAuthentication
+                clearEntryForm(); // Set default date
+                loadSettings();
+                renderEntries(); // Load and render entries
+            } catch (error) {
+                console.error('Failed to initialize app after authentication:', error);
+                alert('Failed to initialize the application. Please try again.');
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('save-entry').addEventListener('click', saveEntry);
+        document.getElementById('add-prompt').addEventListener('click', addCustomPrompt);
+        document.getElementById('save-app-password').addEventListener('click', setAppPassword);
+        document.getElementById('remove-app-password').addEventListener('click', removeAppPassword);
+        document.getElementById('password-submit').addEventListener('click', handlePasswordSubmit);
+        document.getElementById('app-password').addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                handlePasswordSubmit();
+            }
+        });
+        document.getElementById('theme-select').addEventListener('change', async (event) => {
+            const selectedTheme = event.target.value;
+            document.body.dataset.theme = selectedTheme;
+            if (isAuthenticated) {
+                 await setSetting('theme', selectedTheme);
+            }
+        });
+        document.getElementById('export-data').addEventListener('click', exportData);
+        document.getElementById('import-data').addEventListener('change', importData);
+
+
+        // Start the authentication check
+        checkAuthentication();
+
+
+    </script>
+</body>
+</html>

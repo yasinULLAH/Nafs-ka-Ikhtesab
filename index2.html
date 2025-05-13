@@ -1,0 +1,2038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nafs Reckoner</title>
+    <style>
+        /* Reset and Base Styles */
+        :root {
+            --font-family-sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --font-family-serif: 'Georgia', 'Times New Roman', Times, serif;
+            
+            /* Default Theme: Dawn Reflection */
+            --bg-color: #F0F4F8; /* Light Sky Blue */
+            --text-color: #333;
+            --primary-color: #4A90E2; /* Bright Blue */
+            --secondary-color: #F5A623; /* Warm Orange */
+            --accent-color: #50E3C2; /* Tealish Green */
+            --card-bg-color: #FFFFFF;
+            --border-color: #D1D9E6;
+            --input-bg-color: #FFFFFF;
+            --input-border-color: #B0C4DE;
+            --button-bg-color: var(--primary-color);
+            --button-text-color: #FFFFFF;
+            --button-hover-bg-color: #357ABD;
+            --danger-color: #D0021B;
+            --success-color: #4CAF50;
+            --subtle-text-color: #777;
+            --geometric-pattern-opacity: 0.05;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="nightly-review"] {
+            --bg-color: #1A202C; /* Dark Slate Blue */
+            --text-color: #E2E8F0; /* Light Grayish Blue */
+            --primary-color: #63B3ED; /* Lighter Blue */
+            --secondary-color: #F6E05E; /* Pale Yellow */
+            --accent-color: #4FD1C5; /* Bright Teal */
+            --card-bg-color: #2D3748; /* Darker Slate */
+            --border-color: #4A5568; /* Gray */
+            --input-bg-color: #2D3748;
+            --input-border-color: #4A5568;
+            --button-bg-color: var(--primary-color);
+            --button-text-color: #1A202C;
+            --button-hover-bg-color: #4299E1;
+            --subtle-text-color: #A0AEC0;
+            --geometric-pattern-opacity: 0.03;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family-sans);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        body::before { /* Subtle geometric pattern */
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: var(--geometric-pattern-opacity);
+            background-image: 
+                linear-gradient(45deg, var(--border-color) 25%, transparent 25%), 
+                linear-gradient(-45deg, var(--border-color) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, var(--border-color) 75%),
+                linear-gradient(-45deg, transparent 75%, var(--border-color) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            transition: opacity 0.3s;
+        }
+
+
+        /* Layout */
+        #app-container {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            color: var(--primary-color);
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        main {
+            flex-grow: 1;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px 0;
+            font-size: 0.9em;
+            color: var(--subtle-text-color);
+            border-top: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+
+        /* Views */
+        .view {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .view.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Components */
+        button, .button {
+            background-color: var(--button-bg-color);
+            color: var(--button-text-color);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s, transform 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none; /* For .button styled links */
+        }
+        button:hover, .button:hover {
+            background-color: var(--button-hover-bg-color);
+            transform: translateY(-1px);
+        }
+        button:focus, .button:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+        button.secondary {
+            background-color: var(--card-bg-color);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        button.secondary:hover {
+            background-color: var(--bg-color);
+        }
+        button.danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        button.danger:hover {
+            background-color: #A80015;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="date"],
+        input[type="time"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--input-border-color);
+            border-radius: 6px;
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
+            font-size: 1em;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .card {
+            background-color: var(--card-bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px var(--shadow-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .card h2, .view h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-weight: 400;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .view > h2:first-child { /* For view titles */
+             margin-bottom: 25px;
+        }
+
+
+        .prompt-item, .tag-item-manage {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 10px;
+            background-color: var(--bg-color);
+        }
+        .prompt-item textarea {
+            margin-bottom: 0; /* Override default margin */
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: var(--button-text-color);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        [data-theme="nightly-review"] .tag {
+            color: var(--bg-color); /* Better contrast for dark theme tags */
+        }
+
+
+        /* Password Screen */
+        #password-screen {
+            display: flex; /* Initially shown/hidden by JS */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh; /* Full viewport height */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-color); /* Use theme background */
+            z-index: 1000;
+        }
+        #password-screen .card {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        /* Main App Structure (hidden if password protected) */
+        #main-app {
+            display: none; /* Initially shown/hidden by JS */
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header controls */
+        .header-controls button, .header-controls select {
+            margin-left: 10px;
+        }
+        .header-controls select { /* Theme switcher */
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--input-border-color);
+            background-color: var(--input-bg-color);
+            color: var(--text-color);
+            font-size: 0.9em;
+        }
+
+        /* Entry List */
+        .entry-item {
+            cursor: pointer;
+        }
+        .entry-item:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 6px 16px var(--shadow-color);
+        }
+        .entry-item h3 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+        .entry-item p {
+            color: var(--subtle-text-color);
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 90%;
+        }
+
+        /* Modal */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            z-index: 1001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5); /* Dim background */
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: var(--card-bg-color);
+            margin: auto;
+            padding: 25px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .modal-header h2 {
+            margin: 0;
+            color: var(--primary-color);
+        }
+        .close-button {
+            color: var(--subtle-text-color);
+            font-size: 28px;
+            font-weight: bold;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .close-button:hover, .close-button:focus {
+            color: var(--danger-color);
+            text-decoration: none;
+        }
+
+        /* Form groups */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        /* Settings sections */
+        .settings-section {
+            margin-bottom: 30px;
+        }
+        .settings-section h3 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        /* Tag input */
+        #tags-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 8px;
+            border: 1px solid var(--input-border-color);
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+        #tags-input-container .tag-pill {
+            background-color: var(--primary-color);
+            color: var(--button-text-color);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+        }
+        #tags-input-container .tag-pill button {
+            background: none;
+            border: none;
+            color: var(--button-text-color);
+            margin-left: 5px;
+            padding: 0;
+            font-size: 1.1em;
+            line-height: 1;
+            cursor: pointer;
+        }
+        #new-tag-input {
+            border: none;
+            outline: none;
+            flex-grow: 1;
+            padding: 5px;
+            background-color: transparent;
+            color: var(--text-color);
+        }
+
+        /* Consistency View */
+        #consistency-calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            margin-top: 15px;
+        }
+        .calendar-day {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: var(--bg-color);
+            font-size: 0.9em;
+        }
+        .calendar-day.has-entry {
+            background-color: var(--accent-color);
+            color: var(--button-text-color);
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .calendar-header {
+            font-weight: bold;
+            color: var(--subtle-text-color);
+        }
+        #consistency-stats ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        #consistency-stats li {
+            padding: 8px 0;
+            border-bottom: 1px dashed var(--border-color);
+        }
+        #consistency-stats li:last-child {
+            border-bottom: none;
+        }
+
+        /* Utility classes */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .mt-1 { margin-top: 10px; }
+        .mt-2 { margin-top: 20px; }
+        .mb-1 { margin-bottom: 10px; }
+        .mb-2 { margin-bottom: 20px; }
+        .icon {
+            width: 1em;
+            height: 1em;
+            fill: currentColor;
+        }
+        .sr-only { /* Screen Reader only */
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-info {
+            color: #0c5460;
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .alert-success {
+            color: #155724;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            header h1 {
+                margin-bottom: 10px;
+            }
+            .header-controls {
+                width: 100%;
+                display: flex;
+                justify-content: space-between; /* Adjust as needed */
+            }
+            .header-controls button, .header-controls select {
+                margin-left: 0;
+                margin-right: 5px; /* Spacing between controls */
+                flex-grow: 1; /* Make buttons/select take available space */
+            }
+            .header-controls button:last-child, .header-controls select:last-child {
+                margin-right: 0;
+            }
+             .prompt-item, .tag-item-manage {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .prompt-item div, .tag-item-manage div { /* Button container */
+                margin-top: 10px;
+                width: 100%;
+                display: flex;
+                justify-content: flex-end;
+            }
+            .prompt-item div button, .tag-item-manage div button {
+                margin-left: 5px;
+            }
+        }
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+            button, .button {
+                padding: 8px 12px;
+                font-size: 0.9em;
+            }
+            input, textarea, select {
+                font-size: 0.9em;
+            }
+            .card {
+                padding: 15px;
+            }
+            .modal-content {
+                padding: 20px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Password Lock Screen -->
+        <div id="password-screen" class="screen">
+            <div class="card">
+                <h2>Nafs Reckoner</h2>
+                <p class="mb-2">This app is password protected. Please enter your password.</p>
+                <div class="form-group">
+                    <label for="app-password-input">Password</label>
+                    <input type="password" id="app-password-input" aria-describedby="password-error">
+                    <p id="password-error" class="alert alert-danger hidden" role="alert"></p>
+                </div>
+                <button id="unlock-app-btn" class="w-100">
+                    <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" /></svg>
+                    Unlock
+                </button>
+                 <p id="set-initial-password-message" class="mt-2 text-center subtle-text-color hidden">No password set. Create one in Settings after unlocking (leave blank for now).</p>
+            </div>
+        </div>
+
+        <!-- Main App Content -->
+        <div id="main-app">
+            <header>
+                <h1>Nafs Reckoner</h1>
+                <div class="header-controls">
+                    <select id="theme-switcher" aria-label="Select Theme">
+                        <option value="dawn-reflection">Dawn Reflection</option>
+                        <option value="nightly-review">Nightly Review</option>
+                    </select>
+                    <button id="add-entry-btn-header" title="New Entry">
+                        <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                        <span class="sr-only">New Entry</span>
+                    </button>
+                    <button id="consistency-btn-header" title="Consistency View">
+                        <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" /></svg>
+                        <span class="sr-only">Consistency</span>
+                    </button>
+                    <button id="settings-btn-header" title="Settings">
+                        <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106A1.532 1.532 0 0111.49 3.17zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
+                        <span class="sr-only">Settings</span>
+                    </button>
+                </div>
+            </header>
+
+            <main>
+                <!-- Dashboard View -->
+                <section id="dashboard-view" class="view">
+                    <h2>My Journal Entries</h2>
+                    <div id="entry-filter-controls" class="mb-2" style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" id="search-entries-input" placeholder="Search entries..." style="flex-grow: 1; margin-bottom:0;">
+                        <select id="filter-tag-select" style="margin-bottom:0;">
+                            <option value="">All Tags</option>
+                        </select>
+                    </div>
+                    <div id="entries-list">
+                        <!-- Entries will be populated here by JS -->
+                        <p>No entries yet. Start by adding a new one!</p>
+                    </div>
+                </section>
+
+                <!-- Entry Form View (New/Edit) -->
+                <section id="entry-form-view" class="view">
+                    <h2 id="entry-form-title">New Muhasabah Entry</h2>
+                    <form id="journal-entry-form">
+                        <input type="hidden" id="entry-id">
+                        <div class="form-group">
+                            <label for="entry-date">Date</label>
+                            <input type="date" id="entry-date" required>
+                        </div>
+
+                        <div id="guided-prompts-container" class="form-group">
+                            <h3>Guided Reflection</h3>
+                            <!-- Prompts will be populated here -->
+                        </div>
+
+                        <div class="form-group">
+                            <label for="general-notes">General Notes & Reflections</label>
+                            <textarea id="general-notes" rows="5"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="new-tag-input">Tags (type and press Enter or comma)</label>
+                            <div id="tags-input-container">
+                                <!-- Selected tags will appear here -->
+                                <input type="text" id="new-tag-input" placeholder="Add a tag...">
+                            </div>
+                            <div id="available-tags-list" class="mt-1">
+                                <!-- Clickable available tags -->
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" id="cancel-entry-btn" class="secondary">Cancel</button>
+                            <button type="submit" id="save-entry-btn">
+                                <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path d="M7.5,1.5A1.5,1.5,0,0,0,6,3V17a1.5,1.5,0,0,0,1.5,1.5H17A1.5,1.5,0,0,0,18.5,17V6.707A1.5,1.5,0,0,0,18.086,5.8L13.707,1.414A1.5,1.5,0,0,0,12.793,1H7.5Z M13.5,2.207,17.293,6H13.5ZM7.5,0A3,3,0,0,0,4.5,3V17A3,3,0,0,0,7.5,20H17A3,3,0,0,0,20,17V6.707A3,3,0,0,0,18.9,4.6L14.518.214A3,3,0,0,0,12.793,0Z M10,10a1,1,0,0,1,1,1v4a1,1,0,1,1-2,0V11A1,1,0,0,1,10,10Z"/></svg>
+                                Save Entry
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <!-- Settings View -->
+                <section id="settings-view" class="view">
+                    <h2>Settings</h2>
+
+                    <div class="settings-section">
+                        <h3>Manage Prompts</h3>
+                        <div id="prompts-list-manage">
+                            <!-- Prompts for management -->
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="new-prompt-text">Add New Prompt</label>
+                            <input type="text" id="new-prompt-text" placeholder="Enter new prompt text">
+                            <button id="add-prompt-btn" class="mt-1">Add Prompt</button>
+                            <button id="reset-prompts-btn" class="secondary mt-1">Reset to Default Prompts</button>
+                        </div>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Manage Tags</h3>
+                        <div id="tags-list-manage">
+                            <!-- Tags for management -->
+                        </div>
+                        <div class="form-group mt-2">
+                            <label for="new-tag-name-manage">Add New Tag</label>
+                            <input type="text" id="new-tag-name-manage" placeholder="Enter new tag name">
+                            <button id="add-tag-btn-manage" class="mt-1">Add Tag</button>
+                        </div>
+                    </div>
+                    
+                    <div class="settings-section">
+                        <h3>Reminders</h3>
+                        <p class="subtle-text-color mb-1">Note: Reminders use browser notifications. The app tab may need to be open for them to fire reliably.</p>
+                        <div class="form-group">
+                            <label for="enable-reminders">Enable Daily Reminders</label>
+                            <input type="checkbox" id="enable-reminders" style="width: auto; margin-right: 10px;">
+                        </div>
+                        <div class="form-group">
+                            <label for="reminder-time">Reminder Time</label>
+                            <input type="time" id="reminder-time">
+                        </div>
+                        <button id="save-reminder-settings-btn">Save Reminder Settings</button>
+                        <button id="test-notification-btn" class="secondary ml-1">Test Notification</button>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>App Password</h3>
+                        <p class="subtle-text-color mb-1">Set a simple password to protect access. This password is stored locally in your browser and is not highly secure, but offers basic privacy. Leave blank to remove password.</p>
+                        <div class="form-group">
+                            <label for="set-password-input">New Password</label>
+                            <input type="password" id="set-password-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password-input">Confirm New Password</label>
+                            <input type="password" id="confirm-password-input">
+                        </div>
+                        <button id="save-password-btn">Set/Update Password</button>
+                        <button id="remove-password-btn" class="danger ml-1">Remove Password</button>
+                        <p id="password-feedback" class="mt-1"></p>
+                    </div>
+
+                    <div class="settings-section">
+                        <h3>Data Management</h3>
+                        <p class="subtle-text-color mb-1">Backup your journal or restore from a previous backup.</p>
+                        <button id="export-data-btn">
+                            <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                            Export Data (Backup)
+                        </button>
+                        <div class="form-group mt-2">
+                            <label for="import-file-input">Import Data (Restore)</label>
+                            <input type="file" id="import-file-input" accept=".json">
+                            <button id="import-data-btn" class="mt-1">Import</button>
+                            <p class="subtle-text-color mt-1">Warning: Importing will overwrite existing data.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Consistency View -->
+                <section id="consistency-view" class="view">
+                    <h2>Consistency & Insights</h2>
+                    <div class="settings-section">
+                        <h3>Activity Calendar</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <button id="prev-month-btn">< Prev</button>
+                            <h4 id="calendar-month-year">Month Year</h4>
+                            <button id="next-month-btn">Next ></button>
+                        </div>
+                        <div id="consistency-calendar-headers" class="consistency-calendar">
+                            <!-- Calendar day headers (Sun, Mon, etc.) -->
+                        </div>
+                        <div id="consistency-calendar" class="consistency-calendar">
+                            <!-- Calendar days will be populated here -->
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h3>Statistics</h3>
+                        <div id="consistency-stats">
+                            <p>Total Entries: <span id="total-entries-stat">0</span></p>
+                            <h4>Tag Usage:</h4>
+                            <ul id="tag-usage-stats"><li>No tags used yet.</li></ul>
+                            <h4>Prompt Engagement:</h4>
+                            <ul id="prompt-engagement-stats"><li>No prompts answered yet.</li></ul>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+
+            <footer>
+                <p>© <span id="current-year"></span> Yasin Ullah. Nafs Reckoner. V1.0.0</p>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Generic Modal -->
+    <div id="alert-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="alert-modal-title">Notification</h2>
+                <button class="close-button" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <p id="alert-modal-body">Modal body text goes here.</p>
+            <div class="form-actions">
+                <button id="alert-modal-ok-btn" data-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal -->
+    <div id="confirm-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="confirm-modal-title">Confirm Action</h2>
+                 <button class="close-button" data-dismiss="modal" aria-label="Close">×</button>
+            </div>
+            <p id="confirm-modal-body">Are you sure?</p>
+            <div class="form-actions">
+                <button id="confirm-modal-cancel-btn" class="secondary" data-dismiss="modal">Cancel</button>
+                <button id="confirm-modal-confirm-btn" class="danger">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    (function() {
+        'use strict';
+
+        // --- App Constants ---
+        const DB_NAME = 'NafsReckonerDB';
+        const DB_VERSION = 2; // Incremented due to schema changes (e.g., prompt.isDefault)
+        const STORES = {
+            ENTRIES: 'entries',
+            PROMPTS: 'prompts',
+            TAGS: 'tags',
+            SETTINGS: 'settings'
+        };
+        const DEFAULT_PROMPTS = [
+            { text: "Prayers (Salah): On time? Quality of Khushu (focus)?", isDefault: true, isActive: true },
+            { text: "Quran Recitation/Reflection: Any portion read/listened to? What insights?", isDefault: true, isActive: true },
+            { text: "Kind Words & Actions: Spoken/done any? To whom? How did it feel?", isDefault: true, isActive: true },
+            { text: "Control of Nafs (Self): Instances of controlling anger, jealousy, backbiting, etc.?", isDefault: true, isActive: true },
+            { text: "Time Management: Was time used productively or wasted? On what?", isDefault: true, isActive: true },
+            { text: "Gratitude (Shukr): Specific blessings thankful for today?", isDefault: true, isActive: true },
+            { text: "Seeking Forgiveness (Istighfar): For any shortcomings or sins?", isDefault: true, isActive: true },
+            { text: "Areas for Improvement Tomorrow: Specific intentions/actions?", isDefault: true, isActive: true }
+        ];
+
+        // --- State Variables ---
+        let db;
+        let currentEditingEntryId = null;
+        let appPassword = null;
+        let reminderTimeoutId = null;
+        let currentCalendarDate = new Date();
+        let currentEntryTags = new Set(); // For entry form tag management
+
+        // --- DOM Elements Cache ---
+        const DOMElements = {};
+
+        function cacheDOMElements() {
+            DOMElements.appContainer = document.getElementById('app-container');
+            DOMElements.passwordScreen = document.getElementById('password-screen');
+            DOMElements.appPasswordInput = document.getElementById('app-password-input');
+            DOMElements.unlockAppBtn = document.getElementById('unlock-app-btn');
+            DOMElements.passwordError = document.getElementById('password-error');
+            DOMElements.setInitialPasswordMessage = document.getElementById('set-initial-password-message');
+            
+            DOMElements.mainApp = document.getElementById('main-app');
+            DOMElements.themeSwitcher = document.getElementById('theme-switcher');
+            DOMElements.addEntryBtnHeader = document.getElementById('add-entry-btn-header');
+            DOMElements.settingsBtnHeader = document.getElementById('settings-btn-header');
+            DOMElements.consistencyBtnHeader = document.getElementById('consistency-btn-header');
+
+            DOMElements.dashboardView = document.getElementById('dashboard-view');
+            DOMElements.entriesList = document.getElementById('entries-list');
+            DOMElements.searchEntriesInput = document.getElementById('search-entries-input');
+            DOMElements.filterTagSelect = document.getElementById('filter-tag-select');
+
+            DOMElements.entryFormView = document.getElementById('entry-form-view');
+            DOMElements.entryFormTitle = document.getElementById('entry-form-title');
+            DOMElements.journalEntryForm = document.getElementById('journal-entry-form');
+            DOMElements.entryIdInput = document.getElementById('entry-id');
+            DOMElements.entryDateInput = document.getElementById('entry-date');
+            DOMElements.guidedPromptsContainer = document.getElementById('guided-prompts-container');
+            DOMElements.generalNotesInput = document.getElementById('general-notes');
+            DOMElements.tagsInputContainer = document.getElementById('tags-input-container');
+            DOMElements.newTagInput = document.getElementById('new-tag-input');
+            DOMElements.availableTagsList = document.getElementById('available-tags-list');
+            DOMElements.cancelEntryBtn = document.getElementById('cancel-entry-btn');
+            DOMElements.saveEntryBtn = document.getElementById('save-entry-btn');
+
+            DOMElements.settingsView = document.getElementById('settings-view');
+            DOMElements.promptsListManage = document.getElementById('prompts-list-manage');
+            DOMElements.newPromptText = document.getElementById('new-prompt-text');
+            DOMElements.addPromptBtn = document.getElementById('add-prompt-btn');
+            DOMElements.resetPromptsBtn = document.getElementById('reset-prompts-btn');
+            DOMElements.tagsListManage = document.getElementById('tags-list-manage');
+            DOMElements.newTagNameManage = document.getElementById('new-tag-name-manage');
+            DOMElements.addTagBtnManage = document.getElementById('add-tag-btn-manage');
+            DOMElements.enableReminders = document.getElementById('enable-reminders');
+            DOMElements.reminderTime = document.getElementById('reminder-time');
+            DOMElements.saveReminderSettingsBtn = document.getElementById('save-reminder-settings-btn');
+            DOMElements.testNotificationBtn = document.getElementById('test-notification-btn');
+            DOMElements.setPasswordInput = document.getElementById('set-password-input');
+            DOMElements.confirmPasswordInput = document.getElementById('confirm-password-input');
+            DOMElements.savePasswordBtn = document.getElementById('save-password-btn');
+            DOMElements.removePasswordBtn = document.getElementById('remove-password-btn');
+            DOMElements.passwordFeedback = document.getElementById('password-feedback');
+            DOMElements.exportDataBtn = document.getElementById('export-data-btn');
+            DOMElements.importFileInput = document.getElementById('import-file-input');
+            DOMElements.importDataBtn = document.getElementById('import-data-btn');
+
+            DOMElements.consistencyView = document.getElementById('consistency-view');
+            DOMElements.calendarMonthYear = document.getElementById('calendar-month-year');
+            DOMElements.prevMonthBtn = document.getElementById('prev-month-btn');
+            DOMElements.nextMonthBtn = document.getElementById('next-month-btn');
+            DOMElements.consistencyCalendar = document.getElementById('consistency-calendar');
+            DOMElements.consistencyCalendarHeaders = document.getElementById('consistency-calendar-headers');
+            DOMElements.totalEntriesStat = document.getElementById('total-entries-stat');
+            DOMElements.tagUsageStats = document.getElementById('tag-usage-stats');
+            DOMElements.promptEngagementStats = document.getElementById('prompt-engagement-stats');
+
+            DOMElements.alertModal = document.getElementById('alert-modal');
+            DOMElements.alertModalTitle = document.getElementById('alert-modal-title');
+            DOMElements.alertModalBody = document.getElementById('alert-modal-body');
+            DOMElements.alertModalOkBtn = document.getElementById('alert-modal-ok-btn');
+            
+            DOMElements.confirmModal = document.getElementById('confirm-modal');
+            DOMElements.confirmModalTitle = document.getElementById('confirm-modal-title');
+            DOMElements.confirmModalBody = document.getElementById('confirm-modal-body');
+            DOMElements.confirmModalCancelBtn = document.getElementById('confirm-modal-cancel-btn');
+            DOMElements.confirmModalConfirmBtn = document.getElementById('confirm-modal-confirm-btn');
+
+            DOMElements.currentYearSpan = document.getElementById('current-year');
+        }
+
+        // --- Database Module ---
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+                request.onerror = (event) => {
+                    console.error("Database error:", event.target.error);
+                    reject("Database error: " + event.target.error.message);
+                };
+
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORES.ENTRIES)) {
+                        const entryStore = db.createObjectStore(STORES.ENTRIES, { keyPath: 'id', autoIncrement: true });
+                        entryStore.createIndex('date', 'date', { unique: false });
+                        entryStore.createIndex('tags', 'tags', { unique: false, multiEntry: true });
+                    }
+                    if (!db.objectStoreNames.contains(STORES.PROMPTS)) {
+                        const promptStore = db.createObjectStore(STORES.PROMPTS, { keyPath: 'id', autoIncrement: true });
+                        promptStore.createIndex('text', 'text', { unique: true });
+                    }
+                    if (!db.objectStoreNames.contains(STORES.TAGS)) {
+                        db.createObjectStore(STORES.TAGS, { keyPath: 'id', autoIncrement: true });
+                    }
+                    if (!db.objectStoreNames.contains(STORES.SETTINGS)) {
+                        db.createObjectStore(STORES.SETTINGS, { keyPath: 'key' });
+                    }
+                };
+
+                request.onsuccess = (event) => {
+                    db = event.target.result;
+                    console.log("Database initialized successfully.");
+                    // Seed default prompts if prompts store is empty
+                    const transaction = db.transaction(STORES.PROMPTS, 'readonly');
+                    const promptStore = transaction.objectStore(STORES.PROMPTS);
+                    const countRequest = promptStore.count();
+                    countRequest.onsuccess = () => {
+                        if (countRequest.result === 0) {
+                            seedDefaultPrompts().then(() => resolve(db)).catch(reject);
+                        } else {
+                            resolve(db);
+                        }
+                    };
+                    countRequest.onerror = (e) => reject("Error counting prompts: " + e.target.error.message);
+                };
+            });
+        }
+
+        function seedDefaultPrompts() {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject("DB not initialized for seeding prompts");
+                const transaction = db.transaction(STORES.PROMPTS, 'readwrite');
+                const promptStore = transaction.objectStore(STORES.PROMPTS);
+                let completed = 0;
+                
+                DEFAULT_PROMPTS.forEach(prompt => {
+                    const request = promptStore.add(prompt);
+                    request.onsuccess = () => {
+                        completed++;
+                        if (completed === DEFAULT_PROMPTS.length) {
+                            console.log("Default prompts seeded.");
+                            resolve();
+                        }
+                    };
+                    request.onerror = (e) => {
+                        console.error("Error seeding prompt:", prompt.text, e.target.error);
+                        // Continue if one fails, maybe it already exists due to partial seed
+                    };
+                });
+                if (DEFAULT_PROMPTS.length === 0) resolve(); // No prompts to seed
+
+                transaction.oncomplete = () => {
+                    if (completed < DEFAULT_PROMPTS.length && DEFAULT_PROMPTS.length > 0) {
+                        // This might happen if all requests had errors but transaction still completes
+                        console.warn("Not all default prompts may have been seeded successfully.");
+                    }
+                    // Resolve here might be too late if individual requests failed and didn't increment 'completed'
+                };
+                transaction.onerror = (e) => reject("Transaction error seeding prompts: " + e.target.error.message);
+            });
+        }
+        
+        function crud(storeName, operation, data, key) {
+            return new Promise((resolve, reject) => {
+                if (!db) return reject("Database not initialized.");
+                const transaction = db.transaction(storeName, 'readwrite');
+                const store = transaction.objectStore(storeName);
+                let request;
+
+                switch (operation) {
+                    case 'add': request = store.add(data); break;
+                    case 'put': request = store.put(data); break;
+                    case 'get': request = store.get(key); break;
+                    case 'getAll': request = store.getAll(); break;
+                    case 'delete': request = store.delete(key); break;
+                    default: return reject('Invalid operation');
+                }
+
+                request.onsuccess = (event) => resolve(event.target.result);
+                request.onerror = (event) => {
+                    console.error(`CRUD Error (${operation} on ${storeName}):`, event.target.error);
+                    reject(event.target.error);
+                };
+            });
+        }
+
+        // --- UI Module ---
+        function showView(viewId) {
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            const targetView = document.getElementById(viewId);
+            if (targetView) {
+                targetView.classList.add('active');
+                // Scroll to top of new view
+                window.scrollTo(0, 0);
+            } else {
+                console.error("View not found:", viewId);
+                showView('dashboard-view'); // Fallback to dashboard
+            }
+        }
+
+        function applyTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            crud(STORES.SETTINGS, 'put', { key: 'theme', value: themeName }).catch(err => console.error("Error saving theme:", err));
+        }
+
+                function loadTheme() {
+            // Corrected call: 'theme' is the key (4th arg), data (3rd arg) is null
+            crud(STORES.SETTINGS, 'get', null, 'theme').then(setting => {
+                if (setting && setting.value) {
+                    DOMElements.themeSwitcher.value = setting.value;
+                    applyTheme(setting.value);
+                } else {
+                    // If no theme saved, use the default from the select (or a preferred default)
+                    applyTheme(DOMElements.themeSwitcher.value);
+                }
+            }).catch(err => {
+                console.error("Error loading theme:", err);
+                applyTheme('dawn-reflection'); // Fallback
+            });
+        }
+
+        function showAlert(message, title = "Notification", type = "info") {
+            DOMElements.alertModalTitle.textContent = title;
+            DOMElements.alertModalBody.textContent = message;
+            // You can add type-specific styling to the modal if needed
+            DOMElements.alertModal.style.display = "flex";
+        }
+        
+        function showConfirm(message, title = "Confirm Action", onConfirm) {
+            DOMElements.confirmModalTitle.textContent = title;
+            DOMElements.confirmModalBody.textContent = message;
+            DOMElements.confirmModal.style.display = "flex";
+
+            // Remove previous listeners to avoid multiple executions
+            const newConfirmBtn = DOMElements.confirmModalConfirmBtn.cloneNode(true);
+            DOMElements.confirmModalConfirmBtn.parentNode.replaceChild(newConfirmBtn, DOMElements.confirmModalConfirmBtn);
+            DOMElements.confirmModalConfirmBtn = newConfirmBtn; // Update cached element
+
+            DOMElements.confirmModalConfirmBtn.onclick = () => {
+                onConfirm();
+                DOMElements.confirmModal.style.display = "none";
+            };
+        }
+
+        function closeModals() {
+            document.querySelectorAll('.modal').forEach(modal => modal.style.display = 'none');
+        }
+
+        function renderEntries(entriesToRender) {
+            crud(STORES.ENTRIES, 'getAll').then(async allEntries => {
+                let entries = entriesToRender || allEntries.sort((a, b) => new Date(b.date) - new Date(a.date));
+                
+                const searchTerm = DOMElements.searchEntriesInput.value.toLowerCase();
+                const selectedTagId = DOMElements.filterTagSelect.value;
+
+                if (searchTerm) {
+                    entries = entries.filter(entry => 
+                        entry.notes?.toLowerCase().includes(searchTerm) ||
+                        Object.values(entry.promptAnswers || {}).some(answer => answer?.toLowerCase().includes(searchTerm)) ||
+                        new Date(entry.date).toLocaleDateString().includes(searchTerm)
+                    );
+                }
+
+                if (selectedTagId) {
+                    entries = entries.filter(entry => entry.tags?.includes(parseInt(selectedTagId)));
+                }
+
+
+                if (entries.length === 0) {
+                    DOMElements.entriesList.innerHTML = '<p class="card">No entries match your criteria or no entries yet. Start by adding a new one!</p>';
+                    return;
+                }
+
+                const allTags = await crud(STORES.TAGS, 'getAll');
+                const tagsMap = new Map(allTags.map(tag => [tag.id, tag.name]));
+
+                DOMElements.entriesList.innerHTML = entries.map(entry => `
+                    <div class="card entry-item" data-id="${entry.id}" tabindex="0" role="button" aria-label="View entry from ${new Date(entry.date).toLocaleDateString()}">
+                        <h3>${new Date(entry.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}</h3>
+                        <p>${entry.notes ? entry.notes.substring(0, 100) + (entry.notes.length > 100 ? '...' : '') : 'No general notes.'}</p>
+                        <div class="tags-display">
+                            ${(entry.tags && entry.tags.length > 0) ? entry.tags.map(tagId => `<span class="tag">${tagsMap.get(tagId) || 'Unknown Tag'}</span>`).join('') : '<span class="subtle-text-color">No tags</span>'}
+                        </div>
+                    </div>
+                `).join('');
+
+                document.querySelectorAll('.entry-item').forEach(item => {
+                    item.addEventListener('click', () => loadEntryForEditing(item.dataset.id));
+                    item.addEventListener('keypress', (e) => { if (e.key === 'Enter') loadEntryForEditing(item.dataset.id); });
+                });
+            }).catch(err => {
+                console.error("Error rendering entries:", err);
+                DOMElements.entriesList.innerHTML = '<p class="alert alert-danger">Could not load entries.</p>';
+            });
+        }
+
+        async function renderPromptsForForm() {
+            const prompts = await crud(STORES.PROMPTS, 'getAll');
+            const activePrompts = prompts.filter(p => p.isActive);
+            if (activePrompts.length === 0) {
+                DOMElements.guidedPromptsContainer.innerHTML = '<p class="subtle-text-color">No active prompts. You can add or enable prompts in Settings.</p>';
+                return;
+            }
+            DOMElements.guidedPromptsContainer.innerHTML = `<h3>Guided Reflection</h3>` + activePrompts.map(prompt => `
+                <div class="form-group prompt-item-form">
+                    <label for="prompt-${prompt.id}">${prompt.text}</label>
+                    <textarea id="prompt-${prompt.id}" data-prompt-id="${prompt.id}" rows="3"></textarea>
+                </div>
+            `).join('');
+        }
+
+        async function renderPromptsForManagement() {
+            const prompts = await crud(STORES.PROMPTS, 'getAll');
+            if (prompts.length === 0) {
+                DOMElements.promptsListManage.innerHTML = '<p>No prompts created yet.</p>';
+                return;
+            }
+            DOMElements.promptsListManage.innerHTML = prompts.map(prompt => `
+                <div class="prompt-item card">
+                    <span style="flex-grow:1; margin-right:10px;">${prompt.text} ${prompt.isDefault ? '(Default)' : ''}</span>
+                    <div>
+                        <label for="prompt-active-${prompt.id}" class="sr-only">Active ${prompt.text}</label>
+                        <input type="checkbox" id="prompt-active-${prompt.id}" data-id="${prompt.id}" ${prompt.isActive ? 'checked' : ''} title="Toggle Active Status" style="width:auto; margin-right:10px;">
+                        <button class="edit-prompt-btn secondary" data-id="${prompt.id}" aria-label="Edit prompt: ${prompt.text}">
+                            <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                        </button>
+                        ${!prompt.isDefault ? `<button class="delete-prompt-btn danger" data-id="${prompt.id}" aria-label="Delete prompt: ${prompt.text}">
+                            <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                        </button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.edit-prompt-btn').forEach(btn => btn.addEventListener('click', handleEditPrompt));
+            document.querySelectorAll('.delete-prompt-btn').forEach(btn => btn.addEventListener('click', handleDeletePrompt));
+            document.querySelectorAll('#prompts-list-manage input[type="checkbox"]').forEach(checkbox => checkbox.addEventListener('change', handleTogglePromptActive));
+        }
+        
+        async function renderTagsForManagement() {
+            const tags = await crud(STORES.TAGS, 'getAll');
+            if (tags.length === 0) {
+                DOMElements.tagsListManage.innerHTML = '<p>No tags created yet.</p>';
+                return;
+            }
+            DOMElements.tagsListManage.innerHTML = tags.map(tag => `
+                <div class="tag-item-manage card">
+                    <span style="flex-grow:1; margin-right:10px;">${tag.name}</span>
+                    <div>
+                        <button class="edit-tag-btn secondary" data-id="${tag.id}" data-name="${tag.name}" aria-label="Edit tag: ${tag.name}">
+                            <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg>
+                        </button>
+                        <button class="delete-tag-btn danger" data-id="${tag.id}" aria-label="Delete tag: ${tag.name}">
+                            <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            document.querySelectorAll('.edit-tag-btn').forEach(btn => btn.addEventListener('click', handleEditTag));
+            document.querySelectorAll('.delete-tag-btn').forEach(btn => btn.addEventListener('click', handleDeleteTag));
+        }
+
+        async function renderAvailableTagsForForm() {
+            const tags = await crud(STORES.TAGS, 'getAll');
+            DOMElements.availableTagsList.innerHTML = tags.map(tag => 
+                `<button type="button" class="tag available-tag-btn" data-tag-id="${tag.id}" data-tag-name="${tag.name}">${tag.name}</button>`
+            ).join('');
+            document.querySelectorAll('.available-tag-btn').forEach(btn => {
+                btn.addEventListener('click', () => addTagToEntry(btn.dataset.tagName, parseInt(btn.dataset.tagId)));
+            });
+        }
+
+        function renderTagsInInput() {
+            DOMElements.tagsInputContainer.querySelectorAll('.tag-pill').forEach(pill => pill.remove());
+            currentEntryTags.forEach(tagData => { // Expecting tagData to be {id, name}
+                const pill = document.createElement('span');
+                pill.classList.add('tag-pill');
+                pill.textContent = tagData.name;
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '×';
+                removeBtn.setAttribute('aria-label', `Remove tag ${tagData.name}`);
+                removeBtn.onclick = () => removeTagFromEntry(tagData.id);
+                pill.appendChild(removeBtn);
+                DOMElements.tagsInputContainer.insertBefore(pill, DOMElements.newTagInput);
+            });
+        }
+        
+        async function populateTagFilterDropdown() {
+            const tags = await crud(STORES.TAGS, 'getAll');
+            DOMElements.filterTagSelect.innerHTML = '<option value="">All Tags</option>'; // Reset
+            tags.forEach(tag => {
+                const option = document.createElement('option');
+                option.value = tag.id;
+                option.textContent = tag.name;
+                DOMElements.filterTagSelect.appendChild(option);
+            });
+        }
+
+
+        // --- App Logic ---
+        function showNewEntryForm() {
+            currentEditingEntryId = null;
+            DOMElements.journalEntryForm.reset();
+            DOMElements.entryFormTitle.textContent = "New Muhasabah Entry";
+            DOMElements.entryDateInput.valueAsDate = new Date(); // Today's date
+            currentEntryTags.clear();
+            renderTagsInInput();
+            renderPromptsForForm().then(renderAvailableTagsForForm);
+            showView('entry-form-view');
+        }
+
+        async function loadEntryForEditing(entryId) {
+            const entry = await crud(STORES.ENTRIES, 'get', parseInt(entryId));
+            if (entry) {
+                currentEditingEntryId = entry.id;
+                DOMElements.entryFormTitle.textContent = "Edit Muhasabah Entry";
+                DOMElements.entryIdInput.value = entry.id;
+                DOMElements.entryDateInput.value = entry.date;
+                DOMElements.generalNotesInput.value = entry.notes || '';
+                
+                await renderPromptsForForm(); // Render all prompts first
+                if (entry.promptAnswers) {
+                    for (const promptId in entry.promptAnswers) {
+                        const textarea = document.getElementById(`prompt-${promptId}`);
+                        if (textarea) {
+                            textarea.value = entry.promptAnswers[promptId];
+                        }
+                    }
+                }
+
+                currentEntryTags.clear();
+                if (entry.tags && entry.tags.length > 0) {
+                    const allTags = await crud(STORES.TAGS, 'getAll');
+                    const tagsMap = new Map(allTags.map(t => [t.id, t.name]));
+                    entry.tags.forEach(tagId => {
+                        if (tagsMap.has(tagId)) {
+                           currentEntryTags.add({ id: tagId, name: tagsMap.get(tagId) });
+                        }
+                    });
+                }
+                renderTagsInInput();
+                await renderAvailableTagsForForm();
+                showView('entry-form-view');
+            } else {
+                showAlert("Entry not found.", "Error");
+            }
+        }
+
+        async function handleSaveEntry(event) {
+            event.preventDefault();
+            const entryData = {
+                date: DOMElements.entryDateInput.value,
+                notes: DOMElements.generalNotesInput.value,
+                promptAnswers: {},
+                tags: Array.from(currentEntryTags).map(tag => tag.id) // Store only IDs
+            };
+
+            document.querySelectorAll('#guided-prompts-container textarea').forEach(textarea => {
+                entryData.promptAnswers[textarea.dataset.promptId] = textarea.value;
+            });
+
+            try {
+                if (currentEditingEntryId) {
+                    entryData.id = parseInt(currentEditingEntryId);
+                    await crud(STORES.ENTRIES, 'put', entryData);
+                    showAlert("Entry updated successfully!", "Success");
+                } else {
+                    await crud(STORES.ENTRIES, 'add', entryData);
+                    showAlert("Entry saved successfully!", "Success");
+                }
+                renderEntries();
+                showView('dashboard-view');
+            } catch (err) {
+                console.error("Error saving entry:", err);
+                showAlert(`Error saving entry: ${err.message}`, "Error");
+            }
+        }
+        
+        async function addTagToEntry(tagName, tagId = null) {
+            tagName = tagName.trim();
+            if (!tagName) return;
+
+            let existingTag;
+            if (tagId !== null) {
+                existingTag = { id: tagId, name: tagName };
+            } else {
+                const allTags = await crud(STORES.TAGS, 'getAll');
+                existingTag = allTags.find(t => t.name.toLowerCase() === tagName.toLowerCase());
+            }
+            
+            if (existingTag) {
+                currentEntryTags.add({ id: existingTag.id, name: existingTag.name });
+            } else {
+                // Create new tag if it doesn't exist
+                try {
+                    const newTagId = await crud(STORES.TAGS, 'add', { name: tagName });
+                    currentEntryTags.add({ id: newTagId, name: tagName });
+                    await renderAvailableTagsForForm(); // Refresh available tags list
+                    await populateTagFilterDropdown(); // Refresh filter dropdown
+                } catch (err) {
+                    console.error("Error creating new tag:", err);
+                    showAlert(`Could not create tag: ${err.message}`, "Error");
+                    return;
+                }
+            }
+            renderTagsInInput();
+            DOMElements.newTagInput.value = ''; // Clear input
+        }
+
+        function removeTagFromEntry(tagIdToRemove) {
+            currentEntryTags.forEach(tagData => {
+                if (tagData.id === tagIdToRemove) {
+                    currentEntryTags.delete(tagData);
+                }
+            });
+            renderTagsInInput();
+        }
+
+
+        // Settings Logic
+        async function handleAddPrompt() {
+            const text = DOMElements.newPromptText.value.trim();
+            if (text) {
+                try {
+                    await crud(STORES.PROMPTS, 'add', { text: text, isActive: true, isDefault: false });
+                    DOMElements.newPromptText.value = '';
+                    renderPromptsForManagement();
+                    showAlert("Prompt added successfully.", "Success");
+                } catch (err) {
+                    console.error("Error adding prompt:", err);
+                    showAlert(`Error adding prompt: ${err.message}. Prompt text might already exist.`, "Error");
+                }
+            }
+        }
+        
+        async function handleResetPrompts() {
+            showConfirm("Are you sure you want to reset to default prompts? This will remove all custom prompts and reset default ones.", "Confirm Reset", async () => {
+                try {
+                    // Clear existing prompts
+                    const transaction = db.transaction(STORES.PROMPTS, 'readwrite');
+                    const store = transaction.objectStore(STORES.PROMPTS);
+                    await new Promise((resolve, reject) => {
+                        const req = store.clear();
+                        req.onsuccess = resolve;
+                        req.onerror = reject;
+                    });
+                    
+                    // Seed default prompts
+                    await seedDefaultPrompts();
+                    renderPromptsForManagement();
+                    showAlert("Prompts reset to default.", "Success");
+                } catch (err) {
+                    console.error("Error resetting prompts:", err);
+                    showAlert(`Error resetting prompts: ${err.message}`, "Error");
+                }
+            });
+        }
+
+
+        async function handleEditPrompt(event) {
+            const promptId = parseInt(event.currentTarget.dataset.id);
+            const prompt = await crud(STORES.PROMPTS, 'get', promptId);
+            if (prompt) {
+                const newText = prompt(`Enter new text for the prompt: "${prompt.text}"`, prompt.text);
+                if (newText && newText.trim() !== prompt.text) {
+                    try {
+                        await crud(STORES.PROMPTS, 'put', { ...prompt, text: newText.trim() });
+                        renderPromptsForManagement();
+                        showAlert("Prompt updated.", "Success");
+                    } catch (err) {
+                        console.error("Error updating prompt:", err);
+                        showAlert(`Error updating prompt: ${err.message}`, "Error");
+                    }
+                }
+            }
+        }
+
+        async function handleDeletePrompt(event) {
+            const promptId = parseInt(event.currentTarget.dataset.id);
+            const prompt = await crud(STORES.PROMPTS, 'get', promptId);
+            if (prompt && prompt.isDefault) {
+                 showAlert("Default prompts cannot be deleted. You can deactivate them instead.", "Info");
+                 return;
+            }
+            showConfirm("Are you sure you want to delete this prompt?", "Confirm Delete", async () => {
+                try {
+                    await crud(STORES.PROMPTS, 'delete', promptId);
+                    renderPromptsForManagement();
+                    showAlert("Prompt deleted.", "Success");
+                } catch (err) {
+                    console.error("Error deleting prompt:", err);
+                    showAlert(`Error deleting prompt: ${err.message}`, "Error");
+                }
+            });
+        }
+
+        async function handleTogglePromptActive(event) {
+            const promptId = parseInt(event.target.dataset.id);
+            const isActive = event.target.checked;
+            const prompt = await crud(STORES.PROMPTS, 'get', promptId);
+            if (prompt) {
+                try {
+                    await crud(STORES.PROMPTS, 'put', { ...prompt, isActive });
+                    // No need to re-render all, but good for consistency for now
+                    renderPromptsForManagement(); 
+                } catch (err) {
+                    console.error("Error updating prompt status:", err);
+                    showAlert(`Error updating prompt status: ${err.message}`, "Error");
+                }
+            }
+        }
+        
+        async function handleAddTagManage() {
+            const name = DOMElements.newTagNameManage.value.trim();
+            if (name) {
+                try {
+                    // Check if tag already exists
+                    const tags = await crud(STORES.TAGS, 'getAll');
+                    if (tags.some(tag => tag.name.toLowerCase() === name.toLowerCase())) {
+                        showAlert("Tag with this name already exists.", "Info");
+                        return;
+                    }
+                    await crud(STORES.TAGS, 'add', { name: name });
+                    DOMElements.newTagNameManage.value = '';
+                    renderTagsForManagement();
+                    populateTagFilterDropdown();
+                    showAlert("Tag added successfully.", "Success");
+                } catch (err) {
+                    console.error("Error adding tag:", err);
+                    showAlert(`Error adding tag: ${err.message}`, "Error");
+                }
+            }
+        }
+
+        async function handleEditTag(event) {
+            const tagId = parseInt(event.currentTarget.dataset.id);
+            const currentName = event.currentTarget.dataset.name;
+            const newName = prompt(`Enter new name for the tag "${currentName}":`, currentName);
+            if (newName && newName.trim() !== currentName) {
+                try {
+                    // Check if new tag name already exists (excluding current tag)
+                    const tags = await crud(STORES.TAGS, 'getAll');
+                    if (tags.some(tag => tag.id !== tagId && tag.name.toLowerCase() === newName.trim().toLowerCase())) {
+                        showAlert("Another tag with this name already exists.", "Info");
+                        return;
+                    }
+                    await crud(STORES.TAGS, 'put', { id: tagId, name: newName.trim() });
+                    renderTagsForManagement();
+                    populateTagFilterDropdown();
+                    showAlert("Tag updated.", "Success");
+                } catch (err) {
+                    console.error("Error updating tag:", err);
+                    showAlert(`Error updating tag: ${err.message}`, "Error");
+                }
+            }
+        }
+
+        async function handleDeleteTag(event) {
+            const tagId = parseInt(event.currentTarget.dataset.id);
+            showConfirm("Are you sure you want to delete this tag? It will be removed from all entries.", "Confirm Delete", async () => {
+                try {
+                    await crud(STORES.TAGS, 'delete', tagId);
+                    // Also remove this tagId from all entries
+                    const entries = await crud(STORES.ENTRIES, 'getAll');
+                    for (const entry of entries) {
+                        if (entry.tags && entry.tags.includes(tagId)) {
+                            entry.tags = entry.tags.filter(t => t !== tagId);
+                            await crud(STORES.ENTRIES, 'put', entry);
+                        }
+                    }
+                    renderTagsForManagement();
+                    renderEntries(); // Refresh entries if a tag was removed
+                    populateTagFilterDropdown();
+                    showAlert("Tag deleted and removed from entries.", "Success");
+                } catch (err) {
+                    console.error("Error deleting tag:", err);
+                    showAlert(`Error deleting tag: ${err.message}`, "Error");
+                }
+            });
+        }
+
+        function handleSaveReminderSettings() {
+            const enabled = DOMElements.enableReminders.checked;
+            const time = DOMElements.reminderTime.value;
+
+            crud(STORES.SETTINGS, 'put', { key: 'reminderEnabled', value: enabled })
+            .then(() => crud(STORES.SETTINGS, 'put', { key: 'reminderTime', value: time }))
+            .then(() => {
+                showAlert("Reminder settings saved.", "Success");
+                setupReminder();
+            })
+            .catch(err => {
+                console.error("Error saving reminder settings:", err);
+                showAlert(`Error saving reminder settings: ${err.message}`, "Error");
+            });
+        }
+        
+        function testNotification() {
+            if (!("Notification" in window)) {
+                showAlert("This browser does not support desktop notification.", "Info");
+            } else if (Notification.permission === "granted") {
+                new Notification("Nafs Reckoner Test", { body: "This is a test notification!" });
+            } else if (Notification.permission !== "denied") {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        new Notification("Nafs Reckoner Test", { body: "This is a test notification! Permission granted." });
+                    } else {
+                        showAlert("Notification permission denied.", "Info");
+                    }
+                });
+            } else {
+                 showAlert("Notification permission has been denied. Please enable it in your browser settings.", "Info");
+            }
+        }
+
+
+                async function setupReminder() {
+            if (reminderTimeoutId) clearTimeout(reminderTimeoutId);
+
+            // Corrected calls: keys are 4th arg, data (3rd arg) is null
+            const enabledSetting = await crud(STORES.SETTINGS, 'get', null, 'reminderEnabled');
+            const timeSetting = await crud(STORES.SETTINGS, 'get', null, 'reminderTime');
+
+            if (enabledSetting && enabledSetting.value && timeSetting && timeSetting.value) {
+                DOMElements.enableReminders.checked = true; // Ensure UI reflects loaded settings
+                DOMElements.reminderTime.value = timeSetting.value; // Ensure UI reflects loaded settings
+
+                const [hours, minutes] = timeSetting.value.split(':');
+                const now = new Date();
+                let reminderDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, 0, 0);
+
+                if (reminderDate < now) { // If time has passed for today, schedule for tomorrow
+                    reminderDate.setDate(reminderDate.getDate() + 1);
+                }
+
+                const timeToReminder = reminderDate.getTime() - now.getTime();
+                
+                reminderTimeoutId = setTimeout(() => {
+                    if (Notification.permission === "granted") {
+                        new Notification("Nafs Reckoner Reminder", {
+                            body: "Time for your daily Muhasabah!",
+                            icon: "favicon.ico" // You might want to add a small icon
+                        });
+                    } else if (Notification.permission !== "denied") {
+                        Notification.requestPermission().then(permission => {
+                            if (permission === "granted") {
+                                new Notification("Nafs Reckoner Reminder", { body: "Time for your daily Muhasabah!" });
+                            }
+                        });
+                    }
+                    setupReminder(); // Reschedule for the next day
+                }, timeToReminder);
+                console.log(`Reminder set for ${reminderDate}`);
+
+            } else {
+                DOMElements.enableReminders.checked = false; // Ensure UI reflects no reminder
+            }
+        }
+
+               async function loadReminderSettings() {
+            // Corrected calls: keys are 4th arg, data (3rd arg) is null
+            const enabledSetting = await crud(STORES.SETTINGS, 'get', null, 'reminderEnabled');
+            const timeSetting = await crud(STORES.SETTINGS, 'get', null, 'reminderTime');
+            if (enabledSetting && enabledSetting.value) DOMElements.enableReminders.checked = true;
+            if (timeSetting && timeSetting.value) DOMElements.reminderTime.value = timeSetting.value;
+            setupReminder();
+        }
+
+        async function handleSavePassword() {
+            const newPass = DOMElements.setPasswordInput.value;
+            const confirmPass = DOMElements.confirmPasswordInput.value;
+
+            if (newPass !== confirmPass) {
+                DOMElements.passwordFeedback.textContent = "Passwords do not match.";
+                DOMElements.passwordFeedback.className = 'alert alert-danger';
+                return;
+            }
+            
+            try {
+                await crud(STORES.SETTINGS, 'put', { key: 'appPassword', value: newPass });
+                appPassword = newPass; // Update in-memory password
+                DOMElements.passwordFeedback.textContent = newPass ? "Password updated successfully." : "Password removed successfully.";
+                DOMElements.passwordFeedback.className = 'alert alert-success';
+                DOMElements.setPasswordInput.value = '';
+                DOMElements.confirmPasswordInput.value = '';
+                if (!newPass) { // If password removed
+                    DOMElements.passwordScreen.style.display = 'none';
+                    DOMElements.mainApp.style.display = 'flex';
+                }
+            } catch (err) {
+                console.error("Error saving password:", err);
+                DOMElements.passwordFeedback.textContent = "Error saving password.";
+                DOMElements.passwordFeedback.className = 'alert alert-danger';
+            }
+        }
+        
+        async function handleRemovePassword() {
+            showConfirm("Are you sure you want to remove the app password?", "Confirm Removal", async () => {
+                try {
+                    await crud(STORES.SETTINGS, 'delete', 'appPassword');
+                    appPassword = null;
+                    DOMElements.passwordFeedback.textContent = "Password removed successfully.";
+                    DOMElements.passwordFeedback.className = 'alert alert-success';
+                    DOMElements.setPasswordInput.value = '';
+                    DOMElements.confirmPasswordInput.value = '';
+                    // If user is in settings and removes password, they should not be locked out.
+                    // The lock screen logic on load will handle this.
+                } catch (err) {
+                    console.error("Error removing password:", err);
+                    DOMElements.passwordFeedback.textContent = "Error removing password.";
+                    DOMElements.passwordFeedback.className = 'alert alert-danger';
+                }
+            });
+        }
+
+
+                async function checkPasswordProtection() {
+            // Corrected call to crud: pass null for 'data' and 'appPassword' as 'key'
+            const storedPasswordSetting = await crud(STORES.SETTINGS, 'get', null, 'appPassword');
+            if (storedPasswordSetting && storedPasswordSetting.value) {
+                appPassword = storedPasswordSetting.value;
+                DOMElements.passwordScreen.style.display = 'flex';
+                DOMElements.mainApp.style.display = 'none';
+                DOMElements.setInitialPasswordMessage.classList.add('hidden');
+            } else {
+                appPassword = null; // No password set
+                DOMElements.passwordScreen.style.display = 'none';
+                DOMElements.mainApp.style.display = 'flex';
+                // Show message if password screen is active AND appPassword is null (initial setup)
+                if (DOMElements.passwordScreen.style.display === 'flex' && !appPassword) {
+                     DOMElements.setInitialPasswordMessage.classList.remove('hidden');
+                } else {
+                     DOMElements.setInitialPasswordMessage.classList.add('hidden');
+                }
+            }
+        }
+
+        function handleUnlockApp() {
+            const enteredPass = DOMElements.appPasswordInput.value;
+            if (!appPassword) { // No password set, allow entry
+                DOMElements.passwordScreen.style.display = 'none';
+                DOMElements.mainApp.style.display = 'flex';
+                DOMElements.appPasswordInput.value = '';
+                DOMElements.passwordError.classList.add('hidden');
+                showView('dashboard-view'); // Go to dashboard after "unlocking" without password
+                loadInitialData();
+                return;
+            }
+
+            if (enteredPass === appPassword) {
+                DOMElements.passwordScreen.style.display = 'none';
+                DOMElements.mainApp.style.display = 'flex';
+                DOMElements.appPasswordInput.value = '';
+                DOMElements.passwordError.classList.add('hidden');
+                showView('dashboard-view'); // Go to dashboard after successful unlock
+                loadInitialData();
+            } else {
+                DOMElements.passwordError.textContent = "Incorrect password.";
+                DOMElements.passwordError.classList.remove('hidden');
+                DOMElements.appPasswordInput.focus();
+            }
+        }
+        
+        // Data Export/Import
+        async function exportData() {
+            try {
+                const entries = await crud(STORES.ENTRIES, 'getAll');
+                const prompts = await crud(STORES.PROMPTS, 'getAll');
+                const tags = await crud(STORES.TAGS, 'getAll');
+                const settingsToExport = {};
+                const themeSetting = await crud(STORES.SETTINGS, 'get', 'theme');
+                if (themeSetting) settingsToExport.theme = themeSetting.value;
+                const reminderEnabledSetting = await crud(STORES.SETTINGS, 'get', 'reminderEnabled');
+                if (reminderEnabledSetting) settingsToExport.reminderEnabled = reminderEnabledSetting.value;
+                const reminderTimeSetting = await crud(STORES.SETTINGS, 'get', 'reminderTime');
+                if (reminderTimeSetting) settingsToExport.reminderTime = reminderTimeSetting.value;
+
+
+                const dataToExport = {
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    entries,
+                    prompts,
+                    tags,
+                    settings: settingsToExport // Export only non-sensitive settings
+                };
+
+                const jsonString = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `nafs_reckoner_backup_${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showAlert("Data exported successfully.", "Success");
+            } catch (err) {
+                console.error("Error exporting data:", err);
+                showAlert(`Error exporting data: ${err.message}`, "Error");
+            }
+        }
+
+        async function importData() {
+            const file = DOMElements.importFileInput.files[0];
+            if (!file) {
+                showAlert("Please select a file to import.", "Info");
+                return;
+            }
+
+            showConfirm("Importing data will overwrite all current data. Are you sure you want to proceed?", "Confirm Import", () => {
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        if (!importedData.entries || !importedData.prompts || !importedData.tags) {
+                            throw new Error("Invalid backup file format.");
+                        }
+
+                        // Clear existing data
+                        for (const storeName of Object.values(STORES)) {
+                            if (storeName === STORES.SETTINGS && importedData.settings && importedData.settings.appPassword) {
+                                // Do not import password directly, or handle separately
+                                delete importedData.settings.appPassword; 
+                            }
+                            const tx = db.transaction(storeName, 'readwrite');
+                            const store = tx.objectStore(storeName);
+                            await new Promise((res, rej) => {
+                                const req = store.clear();
+                                req.onsuccess = res;
+                                req.onerror = rej;
+                            });
+                        }
+                        
+                        // Import new data
+                        for (const entry of importedData.entries) await crud(STORES.ENTRIES, 'add', entry);
+                        for (const prompt of importedData.prompts) await crud(STORES.PROMPTS, 'add', prompt);
+                        for (const tag of importedData.tags) await crud(STORES.TAGS, 'add', tag);
+                        
+                        if (importedData.settings) {
+                            for (const key in importedData.settings) {
+                                await crud(STORES.SETTINGS, 'put', { key, value: importedData.settings[key] });
+                            }
+                        }
+
+                        showAlert("Data imported successfully. The app will now reload.", "Success");
+                        // Reload necessary data and views
+                        loadTheme();
+                        loadReminderSettings();
+                        renderEntries();
+                        renderPromptsForManagement();
+                        renderTagsForManagement();
+                        populateTagFilterDropdown();
+                        renderConsistencyView(); // Refresh consistency view
+                        showView('dashboard-view'); // Go to dashboard
+                        DOMElements.importFileInput.value = ''; // Reset file input
+
+                    } catch (err) {
+                        console.error("Error importing data:", err);
+                        showAlert(`Error importing data: ${err.message}`, "Error");
+                    }
+                };
+                reader.readAsText(file);
+            });
+        }
+        
+        // Consistency View Logic
+        function renderCalendar(dateToDisplay) {
+            DOMElements.calendarMonthYear.textContent = dateToDisplay.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            DOMElements.consistencyCalendar.innerHTML = ''; // Clear previous days
+            DOMElements.consistencyCalendarHeaders.innerHTML = ''; // Clear headers
+
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            daysOfWeek.forEach(day => {
+                const dayHeaderEl = document.createElement('div');
+                dayHeaderEl.classList.add('calendar-day', 'calendar-header');
+                dayHeaderEl.textContent = day;
+                DOMElements.consistencyCalendarHeaders.appendChild(dayHeaderEl);
+            });
+
+
+            const year = dateToDisplay.getFullYear();
+            const month = dateToDisplay.getMonth();
+            const firstDayOfMonth = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            crud(STORES.ENTRIES, 'getAll').then(entries => {
+                const entriesByDate = {};
+                entries.forEach(entry => {
+                    const entryDate = new Date(entry.date).toDateString(); // Normalize date for comparison
+                    entriesByDate[entryDate] = true;
+                });
+
+                for (let i = 0; i < firstDayOfMonth; i++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.classList.add('calendar-day');
+                    DOMElements.consistencyCalendar.appendChild(emptyCell);
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.classList.add('calendar-day');
+                    dayCell.textContent = day;
+                    const currentDate = new Date(year, month, day);
+                    if (entriesByDate[currentDate.toDateString()]) {
+                        dayCell.classList.add('has-entry');
+                        dayCell.title = `Entry on ${currentDate.toLocaleDateString()}`;
+                        dayCell.onclick = () => {
+                            DOMElements.searchEntriesInput.value = currentDate.toLocaleDateString('en-CA'); // YYYY-MM-DD for easy search
+                            renderEntries();
+                            showView('dashboard-view');
+                        };
+                    }
+                    DOMElements.consistencyCalendar.appendChild(dayCell);
+                }
+            });
+        }
+
+        async function renderConsistencyStats() {
+            const entries = await crud(STORES.ENTRIES, 'getAll');
+            const prompts = await crud(STORES.PROMPTS, 'getAll');
+            const tags = await crud(STORES.TAGS, 'getAll');
+
+            DOMElements.totalEntriesStat.textContent = entries.length;
+
+            // Tag Usage
+            const tagCounts = {};
+            tags.forEach(tag => tagCounts[tag.id] = { name: tag.name, count: 0 });
+            entries.forEach(entry => {
+                entry.tags?.forEach(tagId => {
+                    if (tagCounts[tagId]) tagCounts[tagId].count++;
+                });
+            });
+            DOMElements.tagUsageStats.innerHTML = Object.values(tagCounts).filter(t => t.count > 0)
+                .sort((a,b) => b.count - a.count)
+                .map(tag => `<li>${tag.name}: ${tag.count} entries</li>`).join('') 
+                || '<li>No tags used yet.</li>';
+
+            // Prompt Engagement
+            const promptEngagement = {};
+            prompts.forEach(prompt => promptEngagement[prompt.id] = { text: prompt.text, count: 0 });
+            entries.forEach(entry => {
+                for (const promptId in entry.promptAnswers) {
+                    if (entry.promptAnswers[promptId]?.trim() && promptEngagement[promptId]) {
+                        promptEngagement[promptId].count++;
+                    }
+                }
+            });
+            DOMElements.promptEngagementStats.innerHTML = Object.values(promptEngagement).filter(p => p.count > 0)
+                .sort((a,b) => b.count - a.count)
+                .map(prompt => `<li>"${prompt.text.substring(0,30)}...": Answered ${prompt.count} times</li>`).join('')
+                || '<li>No prompts answered yet.</li>';
+        }
+        
+        function renderConsistencyView() {
+            renderCalendar(currentCalendarDate);
+            renderConsistencyStats();
+            showView('consistency-view');
+        }
+
+
+        // --- Event Listeners Setup ---
+        function setupEventListeners() {
+            DOMElements.themeSwitcher.addEventListener('change', (e) => applyTheme(e.target.value));
+            
+            DOMElements.unlockAppBtn.addEventListener('click', handleUnlockApp);
+            DOMElements.appPasswordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleUnlockApp();
+            });
+
+            // Navigation
+            DOMElements.addEntryBtnHeader.addEventListener('click', showNewEntryForm);
+            DOMElements.settingsBtnHeader.addEventListener('click', () => {
+                renderPromptsForManagement();
+                renderTagsForManagement();
+                loadReminderSettings();
+                showView('settings-view');
+            });
+            DOMElements.consistencyBtnHeader.addEventListener('click', renderConsistencyView);
+            document.querySelector('header h1').addEventListener('click', () => {
+                renderEntries(); // Refresh dashboard
+                showView('dashboard-view');
+            });
+
+
+            // Entry Form
+            DOMElements.journalEntryForm.addEventListener('submit', handleSaveEntry);
+            DOMElements.cancelEntryBtn.addEventListener('click', () => showView('dashboard-view'));
+            DOMElements.newTagInput.addEventListener('keypress', async (e) => {
+                if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    await addTagToEntry(DOMElements.newTagInput.value);
+                    DOMElements.newTagInput.value = '';
+                }
+            });
+
+            // Settings - Prompts
+            DOMElements.addPromptBtn.addEventListener('click', handleAddPrompt);
+            DOMElements.resetPromptsBtn.addEventListener('click', handleResetPrompts);
+
+            // Settings - Tags
+            DOMElements.addTagBtnManage.addEventListener('click', handleAddTagManage);
+
+            // Settings - Reminders
+            DOMElements.saveReminderSettingsBtn.addEventListener('click', handleSaveReminderSettings);
+            DOMElements.testNotificationBtn.addEventListener('click', testNotification);
+
+            // Settings - Password
+            DOMElements.savePasswordBtn.addEventListener('click', handleSavePassword);
+            DOMElements.removePasswordBtn.addEventListener('click', handleRemovePassword);
+
+            // Settings - Data
+            DOMElements.exportDataBtn.addEventListener('click', exportData);
+            DOMElements.importDataBtn.addEventListener('click', importData);
+            
+            // Dashboard filters
+            DOMElements.searchEntriesInput.addEventListener('input', () => renderEntries());
+            DOMElements.filterTagSelect.addEventListener('change', () => renderEntries());
+
+            // Consistency View Calendar Navigation
+            DOMElements.prevMonthBtn.addEventListener('click', () => {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+                renderCalendar(currentCalendarDate);
+            });
+            DOMElements.nextMonthBtn.addEventListener('click', () => {
+                currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+                renderCalendar(currentCalendarDate);
+            });
+
+            // Modal close buttons
+            document.querySelectorAll('[data-dismiss="modal"]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    btn.closest('.modal').style.display = 'none';
+                });
+            });
+            window.addEventListener('click', (event) => { // Close modal if clicked outside
+                document.querySelectorAll('.modal').forEach(modal => {
+                    if (event.target == modal) {
+                        modal.style.display = "none";
+                    }
+                });
+            });
+        }
+        
+        async function loadInitialData() {
+            // This function is called after successful unlock or if no password
+            renderEntries();
+            populateTagFilterDropdown();
+            loadTheme();
+            loadReminderSettings(); // This will also set up the reminder if enabled
+        }
+
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            cacheDOMElements();
+            DOMElements.currentYearSpan.textContent = new Date().getFullYear();
+
+            initDB()
+                .then(() => {
+                    setupEventListeners();
+                    return checkPasswordProtection(); // This will show password screen or main app
+                })
+                .then(() => {
+                    // If no password or password screen is bypassed (e.g. initial setup), load data.
+                    // If password screen is shown, loadInitialData will be called upon successful unlock.
+                    if (DOMElements.mainApp.style.display === 'flex') {
+                        loadInitialData();
+                        showView('dashboard-view');
+                    }
+                })
+                .catch(err => {
+                    console.error("Initialization failed:", err);
+                    DOMElements.appContainer.innerHTML = `<div class="card alert alert-danger">
+                        <h2>Application Error</h2>
+                        <p>Nafs Reckoner could not start. This might be due to an issue with your browser's storage or a critical error.</p>
+                        <p>Details: ${err.message || err}</p>
+                        <p>Please try clearing your browser's cache and site data for this page, or try a different browser. If the problem persists, consider reporting it.</p>
+                    </div>`;
+                });
+        });
+
+    })();
+    </script>
+</body>
+</html>
